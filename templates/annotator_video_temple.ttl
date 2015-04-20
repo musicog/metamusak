@@ -1,0 +1,22 @@
+# template for video files which show Carolin doing the annotation#
+
+@prefix ma: <http://www.w3.org/ns/ma-ont#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix mo: <http://purl.org/ontology/mo> .
+@prefix event: <http://purl.org/NET/c4dm/event.owl#> .
+
+{annotatorVideo} a mo:MusicalManifestation ;
+				ma:format {videoformat} ;
+				ma:duration {duration} ;
+				ma:averageBitRate {bitrate} ;
+				ma:frameSize {frameSize} ;
+				ma:frameRate {frameRate} ;
+				ma:date {dateCreated} ;
+				event:time [
+					a tl:Interval ;
+					tl:start {startTime} ;
+					tl:duration {duration} ] ;
+				tl:during {performance} ;
+				rdfs:label "freehand annotation video" ;
+				rdfs:comment "This is an instance of a video file, which captures the annotation process carried out by the annotator."
+				

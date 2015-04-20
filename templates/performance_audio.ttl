@@ -1,0 +1,12 @@
+# template for audio file(s) which capture the preformance, but to which memebers of the publc don't have access to#
+
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix mo: <http://purl.org/ontology/mo> .
+
+{performanceAudio} a mo:Record ;
+				   mo:media_type dc:MediaType ;
+				   mo:publication_of mo:Score ;
+				   rdfs:label "performance audio" .
+
+

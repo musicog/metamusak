@@ -1,0 +1,12 @@
+@prefix ma: <http://www.w3.org/ns/ma-ont#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix mo: <http://purl.org/ontology/mo> .
+@prefix event: <http://purl.org/NET/c4dm/event.owl#> .
+
+{AnnotationEvent1} event:factor {PageOfOriginalScore} ;
+				   event:product {PageOfAnnotationLayer1} ;
+				   event:agent {Agent5} ;
+				   rdf:comment "Annotation of a single page of the original score" .
+
+{Agent5} a foaf:Agent ;
+		rdfs:label "performance annotator" .

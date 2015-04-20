@@ -1,6 +1,5 @@
 from rdflib import Graph
 from pymediainfo import MediaInfo
-from subprocess import check_output 
 import pprint
 import csv
 import re
@@ -16,7 +15,8 @@ def generateSidecarts(performances, templates, filebase, rdfbase):
         annotatorrdf = rdfbase + "{0}/annotator/".format(performance)
         for video in os.listdir(annotatordir):
             videobase = os.path.splitext(video)[0]
-            if video[0] == ".": #skip hidden files
+            suffix = os.path.splitext(video)[1]
+            if video[0] == "." or suffix == ".ttl": #skip hidden files and existing sidecarts
                 continue
             mediainfo = getMediaInfo(annotatordir + video)
             for key in mediainfo:

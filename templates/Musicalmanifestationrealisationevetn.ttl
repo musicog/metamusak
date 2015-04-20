@@ -1,0 +1,13 @@
+@prefix ma: <http://www.w3.org/ns/ma-ont#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix mo: <http://purl.org/ontology/mo> .
+@prefix event: <http://purl.org/NET/c4dm/event.owl#> .
+
+{MusicalManifestationRealizationEvent} event:factor {PageOfOriginalScore} ;
+									   event:product {Annotation4} ;
+									   event:agent {Agent6} .
+									   
+{Annotation4} a oa:Annotation ;
+		     oa:annotatedAt {Annotation4CreationDate} ;
+			 oa:annotatedBy {Agent6} ;
+			 rdf:comment "timestamp for page turn as determined by the music of the performance" .
