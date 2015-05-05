@@ -7,10 +7,10 @@
 @prefix oa: 
 
 {annotation3} a oa:Annotation ;
-				oa:hasTarget {AnnotationEvent1} ;
-				oa:hasBody {Body2} ;
+				oa:hasTarget {AnnotationEvent2} ;
+				oa:hasBody {Body3} ;
 				oa:annotatedBy {Agent5} ;
-				oa:annotatedAt {AnnotationDate1} ;
+				oa:annotatedAt {AnnotationDate2} ;
 				
 
 {Body2} a dct:MovingImage .
@@ -26,3 +26,6 @@
 				tl:duration {duration} ] ;
 		rdfs:comment "Video of the annotator doing the annotations." ;
 		rdfs:label "Annotator video" .
+
+
+event:Event 
