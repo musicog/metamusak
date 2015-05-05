@@ -1,0 +1,84 @@
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
+
+{performance} a mo:Performance ;		
+		mo:recorded_as {digitalSignal} ;
+		mo:performer {Agent2} ;				
+		rdfs:comment "This is a specific performance of the Work. It has a specific date when it occured, and who did it at that time." ;
+		mo:conductor {Agent1} ;
+		mo:performance_of {musicalWork}  ;
+		event:time {performanceTimeLine} ;
+		mo:listener {Agent6} .
+
+# one performance can produce many digital signals
+# but a digital signal can capture only one performance
+# one permance can have more than performer and each performer can perform several performances (what a delightfully articulate description! Someone buy me a thesaurus...)
+# only one conductor p er perfromance (although doesn't necessarily have to be so??) 
+# each performance is of only one musical work, but the musical works can be of the granularity of acts i.e. doesn't have to be the whole opera. In the future this could even be greater granularity.
+	
+{Agent2} a foaf:Agent ;
+		rdfs:label "performer name" .
+
+{Agent6} a foaf:Agent .
+
+{Agent1} a foaf:Agent ;
+		rdfs:label "conductor name" .
+
+{musicalWork} a mo:MusicalWork ;
+			  rdfs:label "title of opera" ;
+			  mo:composed_in {composition} ;
+			  mo:arranged_in {arrangement}  .
+
+#{MusicalWorkPart} a mo:MusicalWork ;
+#					rdfs:label "Act of specific performance" ;
+#					dc:PartOf {musicalWork} .
+
+
+# granularity of an act
+# {performanceAudio} has it's own file
+
+{composition} a mo:Composition ;
+			  mo:composer {Agent3} .
+#could have more than one composer
+
+{Agent3} a foaf:Agent ;
+		 rdfs:label "composer name" .
+
+{arrangement} a mo:Arrangement ;
+			  event:agent {Agent4} ;
+			  event:product {conceptScore} .
+#mapped as 1 to 1 relationship between arrangement and score
+#Score in the FRBR-sense of abstract score
+			  
+{Agent4} a foaf:Agent ;
+		 rdfs:label "arranger name" .
+
+{conceptScore} a mo:Score;
+			   mo:published_as {score} .
+
+{performanceTimeLine} a tl:AbstractTimeLine .
+					
+
+{performanceTimeLineMapMMRE} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeLine} ;
+							tl:rangeTimeLine {MMRETimeLine} ;
+							tl:delay {MMRE_offset} .
+
+{performanceTimeLineMapPerformanceAudio} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeLine} ;
+							tl:rangeTimeLine {performanceAudioTimeLine} ;
+							tl:delay {performanceAudio_offset} .
+					
+
+# {score} has its own file.
+			   
+
+
