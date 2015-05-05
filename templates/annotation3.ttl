@@ -4,12 +4,9 @@
 @prefix event: <http://purl.org/NET/c4dm/event.owl#> .
 
 {annotation3} a oa:Annotation ;
-			  oa:hasTarget {AnnotationEvent1} ;
-			  oa:hasBody {Body2} ;
+			  oa:hasTarget {AnnotationEvent2} ;
+			  oa:hasBody {Body3} ;
 			  oa:annotatedBy {Agent5} ;
-			  oa:annotatedat {Annotation3CreationDate} .
+			  oa:annotatedAt {Annotation3CreationDate} .
 			  
-{Body2} a dct:MovingImage .
-
-
-			  
+{Body3} a dct:MovingImage .

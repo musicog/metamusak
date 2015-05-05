@@ -1,28 +1,22 @@
 # template for video files which show Carolin doing the annotation#
 
-@prefix ma: <http://www.w3.org/ns/ma-ont#> .
-@prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix mo: <http://purl.org/ontology/mo> .
-@prefix event: <http://purl.org/NET/c4dm/event.owl#> .
-@prefix oa: 
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix dct: <http://purl.org/dc/terms/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix oa: <http://www.w3.org/ns/openannotation/core/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-{annotation3} a oa:Annotation ;
-				oa:hasTarget {AnnotationEvent1} ;
-				oa:hasBody {Body2} ;
-				oa:annotatedBy {Agent5} ;
-				oa:annotatedAt {AnnotationDate1} ;
-				
-
-{Body2} a dct:MovingImage .
+{ConstructStart}
+{Body3} a dct:MovingImage ;
+        mo:records {annotationPerformance} ;
 		ma:format {videoformat} ;
 		ma:duration {duration} ;
 		ma:averageBitRate {bitrate} ;
 		ma:frameSize {frameSize} ;
 		ma:frameRate {frameRate} ;
 		ma:date {dateCreated} ;
-		tl:time [
-				a tl:Interval ;
-				tl:start {startTime} ;
-				tl:duration {duration} ] ;
 		rdfs:comment "Video of the annotator doing the annotations." ;
 		rdfs:label "Annotator video" .
+{ConstructEnd}

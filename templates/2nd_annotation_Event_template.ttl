@@ -3,7 +3,8 @@
 @prefix mo: <http://purl.org/ontology/mo> .
 @prefix event: <http://purl.org/NET/c4dm/event.owl#> .
 
-{AnnotationEvent2} event:factor {Perfromance1} ;
+{AnnotationEvent2} a event:Event ;
+                   event:factor {Performance1} ;
 				   event:factor {PageOfAnnotationLayer1} ;
 				   event:product {PageOfAnnotationLayer2};
 				   event:agent {Agent5} ;

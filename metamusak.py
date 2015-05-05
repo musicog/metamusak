@@ -5,30 +5,112 @@ import csv
 import re
 import os
 
-g = Graph() # The Graph Dracula
-
-def generateSidecarts(performances, templates, filebase, rdfbase):
-    # for each performance -- replace this with list of ids from magic spreadsheet 
+def parsePerformances(g, performances, metamusak, rdfbase) :
     for performance in performances:
-        # annotator videos
-        annotatordir = filebase + "{0}/annotator/".format(performance)
-        annotatorrdf = rdfbase + "{0}/annotator/".format(performance)
-        for video in os.listdir(annotatordir):
-            videobase = os.path.splitext(video)[0]
-            suffix = os.path.splitext(video)[1]
-            if video[0] == "." or suffix == ".ttl": #skip hidden files and existing sidecarts
-                continue
-            mediainfo = getMediaInfo(annotatordir + video)
+        perfid = performance["uid"]
+        perfuri = rdfbase + perfid
+        perftemplate = open(metamusak + "/templates/performance.ttl", "r")
+        perf = perftemplate.read()
+        perf = perf.format(
+                ConstructStart = "", 
+                ConstructEnd = "",
+                Performance1 = perfuri, 
+                Agent6 = performance["listener"], 
+                Agent2 = performance["performerID"], 
+                Agent1 = performance["conductorID"], 
+                MusicalWork1 = performance["workID"], 
+                WorkTitle = performance["title"])
+        g.parse(data=perf, format="turtle")
+
+def generatePerformances(g, perfbase, performances, metamusak, rdfbase) :
+    for performance in performances:
+        perfid = performance["uid"]
+        sidecart = open(perfbase + perfid + "/performance.ttl", "w")
+        perfuri = rdfbase + perfid
+        perftemplate = open(metamusak + "/templates/performance.ttl", "r")
+        perf = perftemplate.read()
+        perf = perf.format(
+                ConstructStart = "CONSTRUCT {", 
+                ConstructEnd = "} WHERE {}",
+                Performance1 = perfuri, 
+                Agent6 = performance["listener"], 
+                Agent2 = performance["performerID"], 
+                Agent1 = performance["conductorID"], 
+                MusicalWork1 = performance["workID"], 
+                WorkTitle = performance["title"])
+        qres = g.query(perf)
+        sidecart.write(qres.serialize(format="turtle"))
+
+def parseAnnotatorVideos(filebase, rdfbase, userinput, metamusak):
+    annotatortemplate = open(metamusak + "/templates/annotator.ttl", "r")
+    anno = annotatortemplate.read()
+    for row in userinput:
+        performance = row["uid"]
+        # each act...
+        actsdir = filebase + "{0}/acts/".format(performance)
+        actsrdf = rdfbase + "{0}/acts/".format(performance)
+        for act in os.listdir(actsdir):
+            if act[0] == ".":
+                continue # skip hidden
+            video = actsdir + act + "/annotator.mov"
+            videordf = actsrdf + act + "/annotator"
+            mediainfo = getMediaInfo(video)
             for key in mediainfo:
                 if mediainfo[key] is None: 
                     continue # skip blank values
-                g.parse(data='<{uri}> <{key}> "{value}" .'.format(uri = annotatorrdf + videobase, key = key, value = mediainfo[key]), format="turtle")
-            sidecart = open(annotatordir + videobase + ".ttl", 'w')
-            constructQ = templates["annotator"].format(uri = annotatorrdf + videobase, performance = rdfbase + performance)
+                query = anno.format(
+                            ConstructStart = "",
+                            ConstructEnd = "",
+                            Body3 = "<" + videordf + ">", 
+                            annotationPerformance = "<"+actsrdf + act+">", 
+                            duration = '"'+mediainfo["duration"]+'"',
+                            bitrate = '"'+mediainfo["averageBitRate"]+'"',
+                            frameSize = '"'+mediainfo["frameSize"]+'"',
+                            frameRate = '"'+mediainfo["frameRate"]+'"',
+                            dateCreated = '"'+mediainfo["date"]+'"',
+                            videoformat = '"'+mediainfo["videoformat"]+'"'
+                        )
+                g.parse(data=query, format="turtle")
+                print g.serialize(format="turtle")
+
+def generateAnnotatorVideos(filebase, rdfbase, userinput, metamusak):
+    annotatortemplate = open(metamusak + "/templates/annotator.ttl", "r")
+    anno = annotatortemplate.read()
+    for row in userinput:
+        performance = row["uid"]
+        # each act...
+        actsdir = filebase + "{0}/acts/".format(performance)
+        actsrdf = rdfbase + "{0}/acts/".format(performance)
+        for act in os.listdir(actsdir):
+            video = actsdir + act + "/annotator.mov"
+            videordf = actsrdf + act + "/annotator"
+            sidecart = open(actsdir + act + "/annotator.ttl", 'w')
+            constructQ = anno.format(
+                            ConstructStart = "CONSTRUCT { ",
+                            Body3 = "<" + videordf + ">", 
+                            annotationPerformance = "?annoPerformance",
+                            duration = "?duration",
+                            bitrate = "?bitrate",
+                            frameSize = "?frameSize",
+                            frameRate = "?frameRate",
+                            dateCreated = "?dateCreated",
+                            videoformat = "?videoformat",
+                            ConstructEnd = """
+                                }} WHERE {{
+                                  {Body3} mo:records ?annoPerformance;
+                                          ma:format ?videoformat; 
+                                          ma:duration ?duration ;
+                                          ma:averageBitRate ?bitrate ;
+                                          ma:frameSize ?frameSize ;
+                                          ma:frameRate ?frameRate ;
+                                          ma:date ?dateCreated .
+                                }}""".format(Body3 = "<" + videordf + ">"),
+                            )
+            print constructQ
             rdfresult = g.query(constructQ)
+            print rdfresult
             sidecart.write(rdfresult.serialize(format="turtle"))
             #TODO Add some nice exception catching here
-            print "Wrote to {0}".format(annotatordir + videobase + ".ttl")
             sidecart.close()
 
 def getMediaInfo(mediaFile):
@@ -39,21 +121,21 @@ def getMediaInfo(mediaFile):
 #                thisfile["rdftool_opera"] = opera
 #                thisfile["rdftool_filename"] = video
 #                thisfile["rdftool_filepath"] = ringcycle + "video/" + opera + "/"
-            thisfile["http://www.w3.org/ns/ma-ont#duration"] = track.duration
-            thisfile["http://www.w3.org/ns/ma-ont#date"] = track.encoded_date
+            thisfile["duration"] = str(track.duration)
+            thisfile["date"] = track.encoded_date
 #                thisfile["file_size"] = track.file_size
-            thisfile["http://www.w3.org/ns/ma-ont#title"] = track.file_name
-            thisfile["http://www.w3.org/ns/ma-ont#format"] = track.format
-            thisfile["http://www.w3.org/ns/ma-ont#averageBitRate"] = track.overall_bit_rate
+            thisfile["title"] = track.file_name
+            thisfile["format"] = track.format
+            thisfile["averageBitRate"] = str(track.overall_bit_rate)
         if track.track_type == "Video":
 #                thisfile["video_codec"] = track.codec
 #                thisfile["video_codec_url"] = track.codec_url
 #                thisfile["video_display_aspect_ratio"] = track.display_aspect_ratio
-            thisfile["http://www.w3.org/ns/ma-ont#format"] = track.format
+            thisfile["videoformat"] = track.format
 #                thisfile["video_bit_depth"] = track.bit_depth
 #                thisfile["video_bit_rate"] = track.bit_rate
-            thisfile["http://www.w3.org/ns/ma-ont#frameRate"] = track.frame_rate
-            thisfile["http://www.w3.org/ns/ma-ont#frameSize"] = str(track.width) + 'x' + str(track.height)
+            thisfile["frameRate"] = str(track.frame_rate)
+            thisfile["frameSize"] = str(track.width) + 'x' + str(track.height)
 #                thisfile["video_resolution"] = track.resolution
 #                thisfile["video_height"] = track.height
 #                thisfile["video_width"] = track.width
@@ -62,30 +144,38 @@ def getMediaInfo(mediaFile):
 #                thisfile["audio_bit_rate"] = track.bit_rate
 #                thisfile["audio_codec"] = track.codec
 #                thisfile["video_duration"] = track.duration
-            thisfile["http://www.w3.org/ns/ma-ont#format"] = track.format
+            thisfile["audioformat"] = track.format
     return thisfile
 
 
 if __name__ == "__main__":
-    templates = { # TODO read these from an external directory? perhaps?
-        "annotator": #annotator video
-            """
-            PREFIX dct: <http://purl.org/dc/terms/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            CONSTRUCT {{ 
-                <{uri}> rdfs:comment "TODO More stuff on how this fits in to the performance / series" ;
-                      dct:isPartOf <{performance}> .
-                <{uri}> ?p ?o .
-            }} WHERE {{ 
-                <{uri}> ?p ?o .
-            }}
-            """
-    }
 
     # physical path
-    ringcycle = "/home/davidw/MetaRingCycle/performance/"
-    performances = os.listdir(ringcycle)
+    ringcycle = "/home/davidw/MetaRingCycle/"
+    perfbase = ringcycle + "performance/"
+    performances = os.listdir(perfbase)
     # rdf path
     rdfbase = "http://performance.data.t-mus.org/performance/" 
-    generateSidecarts(performances, templates, ringcycle, rdfbase)
-    print "Done!"
+
+    
+    inputfile = csv.reader(open(ringcycle + "metamusak/user_input.csv", "rU"), delimiter = ",", quotechar = '"')
+    inputrows = list()
+    inputfields = list()
+    for ix, line in enumerate(inputfile):
+        if ix == 0: # header row - populate fields
+            for field in line:
+                inputfields.append(field)
+        else : # content row: fill in fields for this performance
+            thisPerformance = dict()
+            for ix, field in enumerate(inputfields):
+                thisPerformance[field] = line[ix]
+            inputrows.append(thisPerformance)
+    g = Graph()
+    
+    # parse into graph
+    parsePerformances(g, inputrows, ringcycle + "metamusak", rdfbase)
+    parseAnnotatorVideos(perfbase, rdfbase, inputrows, ringcycle + "metamusak")
+   
+    # generate sidecarts
+    generatePerformances(g, perfbase, inputrows, ringcycle + "metamusak", rdfbase)
+    generateAnnotatorVideos(perfbase, rdfbase, inputrows, ringcycle + "metamusak")

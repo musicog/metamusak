@@ -4,6 +4,11 @@
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix mo: <http://purl.org/ontology/mo> .
 
+{Performance1} mo:recorded_as [
+    a mo:DigitalSignal ;
+    mo:published_as {performanceAudio} ;
+    mo:time {Interval1}
+    ]
 {performanceAudio} a mo:Record ;
 				   mo:media_type dc:MediaType ;
 				   mo:publication_of mo:Score ;
