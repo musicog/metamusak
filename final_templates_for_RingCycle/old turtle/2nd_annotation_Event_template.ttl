@@ -1,0 +1,19 @@
+@prefix ma: <http://www.w3.org/ns/ma-ont#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix mo: <http://purl.org/ontology/mo> .
+@prefix event: <http://purl.org/NET/c4dm/event.owl#> .
+
+{AnnotationEvent2} event:factor {Perfromance1} ;
+				   event:factor {PageOfAnnotationLayer1} ;
+				   event:product {PageOfAnnotationLayer2};
+				   event:agent {Agent5} ;
+				   rdf:comment "Annotation of a single page of the pre-annotated score" .
+
+{PageOfAnnotationLayer1} mo:MediaType {MediaType2} ;
+						prov:derivedFrom {PageOfOriginalScore} .
+
+{PageOfAnnotationLayer2} mo:MediaType {MediaType3} ;
+						 prov:derivedFrom {PageOfAnnotationLayer1} .
+
+
+{MediaType3} rdfs:label ".png" .

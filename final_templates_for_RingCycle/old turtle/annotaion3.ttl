@@ -1,0 +1,15 @@
+@prefix ma: <http://www.w3.org/ns/ma-ont#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix mo: <http://purl.org/ontology/mo> .
+@prefix event: <http://purl.org/NET/c4dm/event.owl#> .
+
+{annotation3} a oa:Annotation ;
+			  oa:hasTarget {AnnotationEvent1} ;
+			  oa:hasBody {Body2} ;
+			  oa:annotatedBy {Agent5} ;
+			  oa:annotatedat {Annotation3CreationDate} .
+			  
+{Body2} a dct:MovingImage .
+
+
+			  
