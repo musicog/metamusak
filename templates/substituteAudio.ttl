@@ -1,12 +1,15 @@
-# template for audio file that was warped to match the performance, but wasn't recorded during the performance.
-
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix mo: <http://purl.org/ontology/mo> .
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {substituteAudio} a mo:Record ;
-				   mo:media_type dc:MediaType ;
-			#	   mo:publication_of mo:Score ;
-				   rdfs:label "substitute audio" ;
-				   mo:other_release_of {performanceAudio} .
-				   
+				   mo:media_type dct:Sound ;
+   				   rdfs:label "substitute audio" ;
+   				   mo:other_release_of {performanceAudio} .

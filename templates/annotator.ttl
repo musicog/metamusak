@@ -1,29 +1,39 @@
-# template for video files which show Carolin doing the annotation#
-
 prefix ma: <http://www.w3.org/ns/ma-ont#> 
 prefix dc: <http://purl.org/dc/elements/1.1/> 
-prefix dct: <http://purl.org/dc/terms/> 
 prefix mo: <http://purl.org/ontology/mo/> 
 prefix event: <http://purl.org/NET/c4dm/event.owl#> 
-prefix oa: <http://www.w3.org/ns/openannotation/core/> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
 
-{ConstructStart}
-{Body3} a dct:MovingImage ;
-        mo:records {annotationPerformance} ;
-{annotation3} a oa:Annotation ;
-				oa:hasTarget {AnnotationEvent2} ;
-				oa:hasBody {Body3} ;
-				oa:annotatedBy {Agent5} ;
-				oa:annotatedAt {AnnotationDate2} ;
-				
-{Body2} a dct:MovingImage .
-		ma:format {videoformat} ;
-		ma:duration {duration} ;
-		ma:averageBitRate {bitrate} ;
-		ma:frameSize {frameSize} ;
-		ma:frameRate {frameRate} ;
-		ma:date {dateCreated} ;
-		rdfs:comment "Video of the annotator doing the annotations." ;
-		rdfs:label "Annotator video" .
-{ConstructEnd}
+{Agent5} a foaf:Agent ;
+		rdfs:label "annotator" .
+
+{MasterTimeLine} a tl:PhysicalTimeLine .
+
+{annotatorActivityTimeline} a tl:AbstractTimeLine .
+
+{AnnotatorTimeLineMapAnnotatorAudio} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeline} ;
+							tl:rangeTimeLine {annotatorAudioTimeLine} ;
+							tl:delay {annotatorAudio_offset} .
+
+{AnnotatorTimeLineMapAnnotatorVideo} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeline} ;
+							tl:rangeTimeLine {annotatorVideoTimeLine} ;
+							tl:delay {annotatorVideo_offset} .
+
+{AnnotatorTimeLineMapFreehandAnnotationLayer1} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeline} ;
+							tl:rangeTimeLine {freehandAnnotationLayer1TimeLine} ;
+							tl:delay {freehandAnnotation_offset} ;
+					
+{AnnotatorTimeLineMapFreehandAnnotationVideo} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeline} ;
+							tl:rangeTimeLine {freehandAnnotationTimeLine} ;
+							tl:delay {freehandAnnotationVideo_offset} .			
+					
+#we've mapped each timeline pair (domain and range) as belonging to a different ShiftMap. 				

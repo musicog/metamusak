@@ -1,0 +1,27 @@
+# template for the event of the performance of a specific opera, i.e. to capture the performance event e.g. on 5th Nolvember 2014#
+
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+
+{ConstructStart}
+<{Performance1}> a mo:Performance ;		
+		mo:listener <{Agent6}> ;
+		mo:performer <{Agent2}> ;
+		mo:conductor <{Agent1}> ;
+		rdfs:comment "This is a specific performance of the Work. It has a specific date when it occured, and who did it at that time." ;
+		mo:performance_of <{MusicalWork1}> ;
+        rdfs:label "Performance of {WorkTitle}" . 
+
+<{Agent2}> a foaf:Agent ;
+		rdfs:label "Performer" .
+
+<{Agent1}> a foaf:Agent ;
+		rdfs:label "Conductor" .
+
+<{Agent6}> a foaf:Agent ;
+		rdfs:label "musical manifestation annotator" .
+{ConstructEnd}
