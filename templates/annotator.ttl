@@ -11,6 +11,13 @@ prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 {ConstructStart}
 {Body3} a dct:MovingImage ;
         mo:records {annotationPerformance} ;
+{annotation3} a oa:Annotation ;
+				oa:hasTarget {AnnotationEvent2} ;
+				oa:hasBody {Body3} ;
+				oa:annotatedBy {Agent5} ;
+				oa:annotatedAt {AnnotationDate2} ;
+				
+{Body2} a dct:MovingImage .
 		ma:format {videoformat} ;
 		ma:duration {duration} ;
 		ma:averageBitRate {bitrate} ;

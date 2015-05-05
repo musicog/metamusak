@@ -1,0 +1,24 @@
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+
+:metaMuSAK a void:Dataset;
+    dcts:title "metaMuSAK";
+    dct:description "RDF data annotating, representing and mapping a rich, curated multimedia archive generated prior, during and after the annotation of a live performance of Richard Wagner's Ring Cycle, as performed in November 2014 at the Birmingham Hippodrome, Birmingham, UK by the Mariinsky Theatre, led by conductor Valery Gergiev." ;
+    dct:created "2015-04-20"^^xsd:date ;
+	dct:creator "David M. Weigl" ;
+	dct:creator "Terhi Nurmikko-Fuller" ;
+	dct:creator "Carolin Rindfleisch" ;
+	dct:creator "Richard Lewis" ;
+	dct:creator "Kevin R. Page" ;
+#	dct:license <uri>;
+#	void:dataDump <uri> ;
+	void:vocabulary <http://rdfs.org/ns/void#> , <http://www.w3.org/1999/02/22-rdf-syntax-ns#> , <http://www.w3.org/2000/01/rdf-schema#> , <http://www.w3.org/2002/07/owl#> , <http://www.w3.org/2001/XMLSchema#> , <http://purl.org/dc/terms/> , <http://xmlns.com/foaf/0.1/> , <http://purl.org/ontology/mo/> , <http://www.w3.org/ns/ma-ont#> , <http://purl.org/NET/c4dm/event.owl#> , <http://purl.org/NET/c4dm/timeline.owl#> , <http://www.w3.org/ns/prov#> .
+	
+	
+	
