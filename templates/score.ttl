@@ -9,6 +9,18 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
+
+#FIXME move back into performance.ttl for construct:
+{musicalWork} mo:arranged_in _:arrangement
+_:arrangement a mo:Arrangement ; #FIXME move back here for construct 
+			  event:agent {Agent4} ;
+              event:product _:conceptScore .
+{Agent4} a foaf:Agent ; #FIXME move back here for construct
+		 rdfs:label "arranger name" .
+_:conceptScore a mo:Score; #FIXME move back here for construct
+			   mo:published_as {score} .
+#END-FIXME-move-for-construct
+
 {score} a mo:PublishedScore ;
 		dc:hasPart {pageOfScore} ;
 		mo:publication_of {conceptScore} .
