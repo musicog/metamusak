@@ -11,29 +11,30 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {Agent5} a foaf:Agent ;
 		rdfs:label "annotator" .
+        
 
 {MasterTimeLine} a tl:PhysicalTimeLine .
 
-{annotatorActivityTimeline} a tl:AbstractTimeLine .
+{annotatorActivityTimeLine} a tl:AbstractTimeLine .
 
-{AnnotatorTimeLineMapAnnotatorAudio} a tl:ShiftMap ;
-							tl:domainTimeLine {MasterTimeline} ;
+{annotatorTimeLineMapAnnotatorAudio} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeLine} ;
 							tl:rangeTimeLine {annotatorAudioTimeLine} ;
 							tl:delay {annotatorAudio_offset} .
 
-{AnnotatorTimeLineMapAnnotatorVideo} a tl:ShiftMap ;
-							tl:domainTimeLine {MasterTimeline} ;
+{annotatorTimeLineMapAnnotatorVideo} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeLine} ;
 							tl:rangeTimeLine {annotatorVideoTimeLine} ;
 							tl:delay {annotatorVideo_offset} .
 
-{AnnotatorTimeLineMapFreehandAnnotationLayer1} a tl:ShiftMap ;
-							tl:domainTimeLine {MasterTimeline} ;
+{annotatorTimeLineMapFreehandAnnotationLayer1} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeLine} ;
 							tl:rangeTimeLine {freehandAnnotationLayer1TimeLine} ;
-							tl:delay {freehandAnnotation_offset} ;
+							tl:delay {freehandAnnotationLayer1_offset} .
 					
-{AnnotatorTimeLineMapFreehandAnnotationVideo} a tl:ShiftMap ;
-							tl:domainTimeLine {MasterTimeline} ;
-							tl:rangeTimeLine {freehandAnnotationTimeLine} ;
+{annotatorTimeLineMapFreehandAnnotationVideo} a tl:ShiftMap ;
+							tl:domainTimeLine {MasterTimeLine} ;
+							tl:rangeTimeLine {freehandAnnotationVideoTimeLine} ;
 							tl:delay {freehandAnnotationVideo_offset} .			
 					
 #we've mapped each timeline pair (domain and range) as belonging to a different ShiftMap. 				

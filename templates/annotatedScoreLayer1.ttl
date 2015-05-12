@@ -14,4 +14,4 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 							mo:media_type dct:Image ;
 							prov:wasDerivedFrom {pageOfScore} .
 							
-#one page of {pageOfAnnotatedScoreLayer1} produced from 1 {pageOfScore} produces 1 {pageOfAnnotatedScoreLayer2} but this last bit is defined in the file for {pageOfAnnotatedScoreLayer2} and {pageOfScore} is defined in score.ttl
+#one page of [pageOfAnnotatedScoreLayer1] produced from 1 [pageOfScore] produces 1 [pageOfAnnotatedScoreLayer2] but this last bit is defined in the file for [pageOfAnnotatedScoreLayer2] and [pageOfScore] is defined in score.ttl

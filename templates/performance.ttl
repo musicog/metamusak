@@ -15,7 +15,7 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 		rdfs:comment "This is a specific performance of the Work. It has a specific date when it occured, and who did it at that time." ;
 		mo:conductor {Agent1} ;
 		mo:performance_of {musicalWork}  ;
-		event:time {performanceTimeLine} ;
+        event:time {performanceTimeLine} ;
 		mo:listener {Agent6} .
 
 # one performance can produce many digital signals
@@ -34,8 +34,8 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {musicalWork} a mo:MusicalWork ;
 			  rdfs:label {workTitle} ;
-              mo:composed_in _:composition ; 
-#			  mo:arranged_in _:arrangement  .  #FIXME move back here for construct
+			  mo:arranged_in _:arrangement  ;  
+              mo:composed_in _:composition . 
 
 
 _:composition a mo:Composition ;
@@ -45,32 +45,35 @@ _:composition a mo:Composition ;
 {Agent3} a foaf:Agent ;
 		 rdfs:label "composer" .
 
-#_:arrangement a mo:Arrangement ; #FIXME move back here for construct 
-#			  event:agent {Agent4} ;
-#              event:product _:conceptScore .
+_:arrangement a mo:Arrangement ; 
+			  event:agent {Agent4} ;
+              event:product {conceptScore} .
 #mapped as 1 to 1 relationship between arrangement and score
 #Score in the FRBR-sense of abstract score
 			  
-#{Agent4} a foaf:Agent ; #FIXME move back here for construct
-#		 rdfs:label "arranger name" .
+{Agent4} a foaf:Agent ; 
+		 rdfs:label "arranger name" .
 
-#_:conceptScore a mo:Score; #FIXME move back here for construct
-#			   mo:published_as {score} .
+{conceptScore} a mo:Score; 
+			   mo:published_as {score} .
 
-_:performanceTimeLine a tl:AbstractTimeLine .
+{score} a mo:PublishedScore ;
+        mo:publication_of {conceptScore} .
+
+{performanceTimeLine} a tl:AbstractTimeLine .
 					
-_:performanceTimeLineMapMMRE a tl:ShiftMap ;
-                            tl:domainTimeLine _:MasterTimeLine ;
-                            tl:rangeTimeLine _:MMRETimeLine ;
+{performanceTimeLineMapMMRE} a tl:ShiftMap ;
+                            tl:domainTimeLine {MasterTimeLine} ;
+                            tl:rangeTimeLine {MMRETimeLine} ;
 							tl:delay {MMRE_offset} .
 
-_:performanceTimeLineMapPerformanceAudio a tl:ShiftMap ;
-                            tl:domainTimeLine _:MasterTimeLine ;
-                            tl:rangeTimeLine _:performanceAudioTimeLine ;
+{performanceTimeLineMapPerformanceAudio} a tl:ShiftMap ;
+                            tl:domainTimeLine {MasterTimeLine} ;
+                            tl:rangeTimeLine {performanceAudioTimeLine} ;
 							tl:delay {performanceAudio_offset} .
 					
 
-# {score} has its own file.
+# [score] has its own file.
 			   
 
 
