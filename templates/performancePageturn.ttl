@@ -11,14 +11,14 @@ prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {MusicalManifestationRealizationEvent} a mo:Performance ;
-									   event:time {MMReventInterval} ;
+                                       event:time _:MMReventInterval ;
 									   event:factor {pageOfScore} ;
 									   event:agent {Agent6} .
-#{agent6} defined in {performance}	
-#{pageOfScore} is defined in score.ttl
+#[agent6] defined in [performance]	
+#[pageOfScore] is defined in score.ttl
 #each page will have one Event, the event is the performance of that page, i.e. when the musicians play the notes that are depicted on that page.
 			 
-{MMReventInterval} a tl:Interval ;
+_:MMReventInterval a tl:Interval ;
 					tl:start {MMReventIntervalStart} ;
 					tl:duration {MMReventIntervalDuration} ;
 					tl:timeline {performanceTimeLine} ;

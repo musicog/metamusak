@@ -2,6 +2,7 @@ from rdflib import Graph
 from pymediainfo import MediaInfo
 from pprint import pprint
 from datetime import datetime, timedelta
+from warnings import warn
 import urllib
 import random
 import string
@@ -69,21 +70,109 @@ def parseScore(g, performances, filebase, rdfbase) :
         perfid = p["uid"]
         perfuri = rdfbase + perfid
         sourcedir = filebase + "performance/" + perfid + "/musicalmanifestation/score"
+        
+        # read in performance page turns
+        # note regarding the CSV files produced by Richard's tool:
+        # * The last page before the end of an act is NOT encoded in the same way as the others
+        #   instead its turn time is encoded as an act ending event (e.g. "act 1 ends")
+        # * also, for some reason, act starts and ends are encoded to the second, whereas all other pageturns are
+        #   to the millisecond. 
+        pageturnsfile = csv.reader(open(filebase + "performance/" + perfid + "/musicalmanifestation/pageturn/performance.csv", "r"), delimiter=",", quotechar='"')
+        pageturns = dict()
+        pageturnFields = list()
+        prevTime = "" # used in MMRE duration calculation
+        prevPage = 0 # used to calculate the page number for "act ends" (see note above)
+        for ix, line in enumerate(pageturnsfile):
+            if ix <= 2: # skip headers and sync claps
+                next
+            else: # content row - fill in fields
+                m = re.match("page \w+-(\d+) ends", line[0])
+                n = re.match("act \d ends", line[0])
+                if m or n: # act ends are just page turns in richard's tool
+                    thisPage = dict()
+                    #FIXME URGENTLY: Address the pagenum discrepancy between Richard and Carolin (see R script)
+                    if m:
+                        thisPage["pageNum"] =  int(m.group(1))
+                    else: 
+                        thisPage["pageNum"] = prevPage+1
+                    thisPage["opera"] = line[1]
+                    thisPage["act"] = line[2]
+                    try:
+                        thisPage["turntime"] = datetime.strptime(line[4], "%Y-%m-%d %H:%M:%S.%f")
+                    except:
+                    #FIXME for Richard: tool specifies pageturns to millisecond but act starts/ends to the second
+                        thisPage["turntime"] = datetime.strptime(line[4], "%Y-%m-%d %H:%M:%S")
+                    # each page is preceded in the file by a timestamped event of some sort...
+                    # even the first page, as there is other timestamped info in the file (e.g. start of act)
+                    # we can rely on this when calculating MMRE durations
+                    thisPage["starttime"] = prevTime
+                    thisPage["duration"] = thisPage["turntime"] - thisPage["starttime"] 
+                    pageturns[thisPage["pageNum"]] = thisPage
+                    prevPage = thisPage["pageNum"] # track for when we reach an act ends event
+                # regardless of event type, record the timestamp for MMRE duration calculation
+                try: 
+                    prevTime = datetime.strptime(line[4], "%Y-%m-%d %H:%M:%S.%f")
+                except: 
+                    prevTime = datetime.strptime(line[4], "%Y-%m-%d %H:%M:%S")
+
+        # now work through the page image files
         for page in os.listdir(sourcedir):
             if page.endswith(".jpg"):  # only jpg files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
-                scoretemplate = open(filebase + "metamusak/templates/score.ttl", "r")
-                sc = scoretemplate.read()
-                sc = sc.format(
-                        conceptScore = uri(perfuri + "/musicalmanifestation/conceptScore"),
-                        score = uri(perfuri + "/musicalmanifestation/score"),
-                        pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
-                        MusicalManifestationRealizationEvent = uri(perfuri + "annotation/pageturn/realization") #FIXME check this
+                m = re.match("\w+-(\d+).jpg", page)
+                pagenum = int(m.group(1))
+                if pagenum in pageturns:
+                    # set up score.ttl
+                    scoreTemplate = open(filebase + "metamusak/templates/score.ttl", "r")
+                    sc = scoreTemplate.read()
+                    sc = sc.format(
+                            conceptScore = uri(perfuri + "/musicalmanifestation/conceptScore"),
+                            score = uri(perfuri + "/musicalmanifestation/score"),
+                            pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
+                            MusicalManifestationRealizationEvent = uri(perfuri + "musicalmanifestation/pageturn/" + str(pagenum)) #FIXME check this
+                    )
+                    # set up performancePageturn.ttl 
+                    performancePageturnTemplate = open(filebase + "metamusak/templates/performancePageturn.ttl")
+                    pt = performancePageturnTemplate.read()
+                    pt = pt.format(
+                            MusicalManifestationRealizationEvent = uri(perfuri + "musicalmanifestation/pageturn/" + str(pagenum)), #FIXME check this
+                            pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
+                            Agent6=uri(p["listenerID"]),
+                            MMReventIntervalStart = lit(pageturns[pagenum]["starttime"]),
+                            MMReventIntervalDuration = lit(pageturns[pagenum]["duration"]),
+                            performanceTimeLine = uri(perfuri + "/timelines/performance"),
+                            performanceTimeLineMapMMRE = uri(perfuri + "/timelines/performanceMapMMRE")
+                    )
+                           
+                    # now ingest both templates    
+                    g.parse(data=sc, format="turtle")
+                    g.parse(data=pt, format="turtle")
+                else: # don't produce any RDF for pages missing performance pageturn data (e.g. end of Walkuere)
+                    warn("Warning: don't have performance page turn info for page {0}, performance {1}".format(pagenum, perfid))
+
+def parseAnnotatedScoreLayer1(g, performances, filebase, rdfbase):
+    for p in performances:
+        perfid = p["uid"]
+        perfuri = rdfbase + perfid
+        sourcedir = filebase + "performance/" + perfid + "/annotation/score1"
+        for page in os.listdir(sourcedir):
+            m = re.match("opera\d_PG \((\d+)\).jpg", page)
+            if m:
+                pagenum = int(m.group(1))
+                #TODO for musak 2.0: make page numbers and file names consistent between listener and annotator!!!
+                # so that the following nonsense isn't necessary:
+                pageOfScoreNum = pagenum + int(p["scorePageOffset"])
+                pageOfScore = p["operaPrefix"] + "-" + "{0:0>4}".format(pageOfScoreNum)
+                annotatedScoreLayer1Template = open(filebase + "metamusak/templates/annotatedScoreLayer1.ttl", "r")
+                sc1 = annotatedScoreLayer1Template.read()
+                sc1 = sc1.format(
+                        pageOfAnnotatedScoreLayer1 = uri(perfuri + "/annotation/score1/" + urllib.quote(os.path.splitext(page)[0])),
+                        pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + pageOfScore)
                 )
 
-                g.parse(data=sc, format="turtle")
-                    
+                g.parse(data=sc1, format="turtle")
+                
 
-def parsePerformance(g, performances, filebase, rdfbase, offsets) :
+def parsePerformance(g, performances, filebase, rdfbase, offsets):
     for p in performances:
         perfid = p["uid"]
         perfuri = rdfbase + perfid
@@ -299,12 +388,13 @@ if __name__ == "__main__":
         p["uid"] = p["performanceID"][p["performanceID"].rindex("/")+1:]
     offsets = calculateTimelineOffsets(syncTimestamps)
     g = Graph()
-    parseScore(g, userinputrows, ringcycle, rdfbase)
-    parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets)
-    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) 
-    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
-    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
-    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase)
+    parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
+    parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
+    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
+    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
+    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
+    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
+    parseAnnotatedScoreLayer1(g, userinputrows, ringcycle, rdfbase) # annotatedScoreLayer1.ttl
     print g.serialize(format="turtle")
 
 
