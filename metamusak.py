@@ -128,13 +128,13 @@ def parseScore(g, performances, filebase, rdfbase) :
                             conceptScore = uri(perfuri + "/musicalmanifestation/conceptScore"),
                             score = uri(perfuri + "/musicalmanifestation/score"),
                             pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
-                            MusicalManifestationRealizationEvent = uri(perfuri + "musicalmanifestation/pageturn/" + str(pagenum)) #FIXME check this
+                            MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum)) #FIXME check this
                     )
                     # set up performancePageturn.ttl 
                     performancePageturnTemplate = open(filebase + "metamusak/templates/performancePageturn.ttl")
                     pt = performancePageturnTemplate.read()
                     pt = pt.format(
-                            MusicalManifestationRealizationEvent = uri(perfuri + "musicalmanifestation/pageturn/" + str(pagenum)), #FIXME check this
+                            MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum)), #FIXME check this
                             pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
                             Agent6=uri(p["listenerID"]),
                             MMReventIntervalStart = lit(pageturns[pagenum]["starttime"]),
@@ -495,6 +495,38 @@ def generatePerformanceAudio(g, performances, filebase, rdfbase):
                 sidecartFile.close()
                 performanceAudioConstruct.close()
         
+def generateScore(g, performances, filebase, rdfbase):
+    for p in performances:
+        perfid = p["uid"]
+        perfuri = rdfbase + perfid
+        sourcedir = filebase + "performance/" + perfid + "/musicalmanifestation/score"
+        for page in os.listdir(sourcedir):
+            if page.endswith(".jpg"):  # only jpg files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
+                pagebase = os.path.splitext(page)[0]
+                m = re.match("\w+-(\d+).jpg", page)
+                pagenum = int(m.group(1))
+                scoreConstruct = open(filebase + "metamusak/constructors/score.ttl", "r")
+                scoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/"+pagebase+".rdf", "w")
+                sc = scoreConstruct.read()
+                sc = sc.format(
+                    pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(pagebase))
+                )
+                scoreSidecart = g.query(sc)
+                scoreSidecartFile.write(scoreSidecart.serialize(format="turtle"))
+                scoreConstruct.close()
+                scoreSidecartFile.close()
+
+                performancePageturnConstruct = open(filebase + "metamusak/constructors/performancePageturn.ttl")
+                performancePageturnSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/pageturn/"+pagebase+".rdf", "w")
+                pt = performancePageturnConstruct.read()
+                pt = pt.format(
+                    MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum)) 
+                )
+                performancePageturnSidecart = g.query(pt)
+                performancePageturnSidecartFile.write(performancePageturnSidecart.serialize(format="turtle"))
+                performancePageturnSidecartFile.close()
+                performancePageturnConstruct.close()
+
         
 
 
@@ -553,7 +585,7 @@ if __name__ == "__main__":
 
     offsets = calculateTimelineOffsets(syncTimestamps)
     g = Graph()
-#    parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
+    parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
 #    parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
     parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
     parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
@@ -562,9 +594,10 @@ if __name__ == "__main__":
     parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
 #    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
 ##    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
-#    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
+    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
     generateAnnotator(g, userinputrows, ringcycle, rdfbase)
     generatePerformance(g, userinputrows, ringcycle, rdfbase)
     generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
+    generateScore(g, userinputrows, ringcycle, rdfbase)
 
 
