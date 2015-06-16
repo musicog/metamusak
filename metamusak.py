@@ -220,7 +220,8 @@ def parseAnnotatedScore(g, performances, filebase, rdfbase):
                     freehandAnnotationLayer1Template = open(filebase + "metamusak/templates/freehandAnnotationLayer1.ttl", "r")
                     fh1 = freehandAnnotationLayer1Template.read()
                     fh1 = fh1.format(
-                        freehandAnnotationLayer1 = uri(perfuri + "/annotation/" + urllib.quote(pageturns[pagenum]["basename"])),
+                        freehandAnnotationLayer1 = uri(perfuri + "/annotation/" + str(pagenum)),
+                        #freehandAnnotationLayer1 = uri(perfuri + "/annotation/" + urllib.quote(pageturns[pagenum]["basename"])),
                         Agent5 = uri(p["annotatorID"]),
                         performance = uri(perfuri),
                         annotatedScoreLayer1 = uri(perfuri + "/annotation/score1/" + urllib.quote(basename)),
@@ -232,7 +233,7 @@ def parseAnnotatedScore(g, performances, filebase, rdfbase):
                         freehandAnnotationLayer1TimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationLayer1")
                     )
                     # NOW PARSE BOTH
-                    g.parse(data=sc1, format="turtle")
+                    g.parse(data=sc2, format="turtle")
                     g.parse(data=fh1, format="turtle")
                         
 
@@ -526,8 +527,50 @@ def generateScore(g, performances, filebase, rdfbase):
                 performancePageturnSidecartFile.write(performancePageturnSidecart.serialize(format="turtle"))
                 performancePageturnSidecartFile.close()
                 performancePageturnConstruct.close()
+                score1sourcedir = filebase + "performance/" + perfid + "/musicalmanifestation/score"
 
         
+
+def generateAnnotatedScore(g, performances, filebase, rdfbase):
+    for p in performances:
+        perfid = p["uid"]
+        perfuri = rdfbase + perfid
+        score1sourcedir = filebase + "performance/" + perfid + "/annotation/score1"
+        score2sourcedir = filebase + "performance/" + perfid + "/annotation/score2"
+        freehandsourcedir = filebase + "performance/" + perfid + "/annotation"
+        for page in os.listdir(score1sourcedir):
+            m = re.match("opera\d_PG \((\d+)\).jpg", page)
+            if m:
+                basename = os.path.splitext(page)[0]
+                pagenum = m.group(1)
+                pageOfAnnotatedScoreLayer1Construct = open(filebase + "metamusak/constructors/annotatedScoreLayer1.ttl")
+                sc1 = pageOfAnnotatedScoreLayer1Construct.read()
+                sc1 = sc1.format(
+                    pageOfAnnotatedScoreLayer1 = uri(perfuri + "/annotation/score1/" + urllib.quote(basename))
+                )
+                pageOfAnnotatedScoreLayer1Sidecart = g.query(sc1)
+                pageOfAnnotatedScoreLayer1SidecartFile = open(score1sourcedir + "/" + basename + ".rdf", "w")
+                pageOfAnnotatedScoreLayer1SidecartFile.write(pageOfAnnotatedScoreLayer1Sidecart.serialize(format="turtle"))
+
+                pageOfAnnotatedScoreLayer2Construct = open(filebase + "metamusak/constructors/annotatedScoreLayer2.ttl")
+                sc2 = pageOfAnnotatedScoreLayer2Construct.read()
+                sc2 = sc2.format(
+                    # Note - we intentionally send in Layer 1, and then get Layer 2 in the constructor template via prov:wasDerivedFrom
+                    pageOfAnnotatedScoreLayer1 = uri(perfuri + "/annotation/score1/" + urllib.quote(basename))
+                )
+                pageOfAnnotatedScoreLayer2Sidecart = g.query(sc2)
+                pageOfAnnotatedScoreLayer2SidecartFile = open(score2sourcedir + "/" + basename + ".rdf", "w")
+                pageOfAnnotatedScoreLayer2SidecartFile.write(pageOfAnnotatedScoreLayer2Sidecart.serialize(format="turtle"))
+                
+                freehandAnnotationLayer1Construct = open(filebase + "metamusak/constructors/freehandAnnotationLayer1.ttl")
+                fh1 = freehandAnnotationLayer1Construct.read()
+                fh1 = fh1.format(
+                    freehandAnnotationLayer1 = uri(perfuri + "/annotation/" + str(pagenum))
+                )
+                freehandAnnotationLayer1Sidecart = g.query(fh1)
+                freehandAnnotationLayer1SidecartFile = open(freehandsourcedir + "/" + str(pagenum) + ".rdf", "w")
+                freehandAnnotationLayer1SidecartFile.write(freehandAnnotationLayer1Sidecart.serialize(format="turtle"))
+
 
 
 
@@ -586,7 +629,7 @@ if __name__ == "__main__":
     offsets = calculateTimelineOffsets(syncTimestamps)
     g = Graph()
     parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
-#    parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
+    parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
     parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
     parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
 #    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
@@ -594,10 +637,11 @@ if __name__ == "__main__":
     parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
 #    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
 ##    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
-    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
+#    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
     generateAnnotator(g, userinputrows, ringcycle, rdfbase)
     generatePerformance(g, userinputrows, ringcycle, rdfbase)
     generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
     generateScore(g, userinputrows, ringcycle, rdfbase)
+    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
 
 
