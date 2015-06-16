@@ -301,7 +301,7 @@ def parsePerformanceAudio(g, performances, filebase, rdfbase):
     perfau = performanceAudioTemplate.read()
     for p in performances:
         sourcedir =  filebase + "performance/" + p["uid"] + "/musicalmanifestation/"
-        perfuri = rdfbase + "performance/" + p["uid"]
+        perfuri = rdfbase + p["uid"]
         for audiofname in os.listdir(sourcedir):
             if audiofname.endswith(".mp3"):
                 # found some annotator audio)!
@@ -326,7 +326,7 @@ def parseSubstituteAudio(g, performances, filebase, rdfbase):
     perfau = substituteAudioTemplate.read()
     for p in performances:
         sourcedir =  filebase + "performance/" + p["uid"] + "/musicalmanifestation/"
-        perfuri = rdfbase + "performance/" + p["uid"]
+        perfuri = rdfbase + p["uid"]
         for audiofname in os.listdir(sourcedir):
             if audiofname.endswith(".mp3"):
                 # found some annotator audio)!
@@ -346,7 +346,7 @@ def parseAnnotatorAudio(g, performances, filebase, rdfbase):
     anno = annotatorAudioTemplate.read()
     for p in performances:
         sourcedir =  filebase + "performance/" + p["uid"] + "/annotation/audio/"
-        perfuri = rdfbase + "performance/" + p["uid"]
+        perfuri = rdfbase + p["uid"]
         for audiofname in os.listdir(sourcedir):
             if audiofname.endswith(".m4a"):
                 # found some annotator audio!
@@ -378,7 +378,7 @@ def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
     anno = annotatorAudioTemplate.read()
     for p in performances:
         sourcedir =  filebase + "performance/" + p["uid"] + "/annotator/"
-        perfuri = rdfbase + "performance/" + p["uid"]
+        perfuri = rdfbase + p["uid"]
         for videofname in os.listdir(sourcedir):
             if videofname.endswith(".mov"): #TODO enable other formats
                 # found some annotator video!
@@ -456,6 +456,44 @@ def generateAnnotator(g, performances, filebase, rdfbase):
         sidecartFile.write(sidecart.serialize(format="turtle"))
         sidecartFile.close()
         annotatorConstruct.close()
+
+def generatePerformance(g, performances, filebase, rdfbase):
+    for p in performances:
+        performanceConstruct = open(filebase + "metamusak/constructors/performance.ttl", "r")
+        perfid = p["uid"]
+        perfuri = rdfbase + perfid
+        sidecartFile = open(filebase + "performance/" + perfid + "/performance.rdf", "w")
+        perf = performanceConstruct.read()
+        perf = perf.format(
+                performance=uri(p["performanceID"]),
+                MasterTimeLine = uri(p["performanceID"] + "/timelines/master"),
+                performanceTimeLineMapMMRE = uri(p["performanceID"] + "/timelines/performanceMapMMRE"),
+                performanceTimeLineMapPerformanceAudio = uri(p["performanceID"] + "/timelines/performanceMapPerformanceAudio")
+        )
+        sidecart = g.query(perf)
+        sidecartFile.write(sidecart.serialize(format="turtle"))
+        sidecartFile.close()
+        performanceConstruct.close()
+
+def generatePerformanceAudio(g, performances, filebase, rdfbase):
+    for p in performances:
+        sourcedir =  filebase + "performance/" + p["uid"] + "/musicalmanifestation/"
+        perfid = p["uid"]
+        perfuri = rdfbase + perfid
+        for audiofname in os.listdir(sourcedir):
+            if audiofname.endswith(".mp3"):
+                performanceAudioConstruct = open(filebase + "metamusak/constructors/performanceAudio.ttl", "r")
+                audiofbase = os.path.splitext(audiofname)[0]
+                # found some annotator audio)!
+                sidecartFile = open(sourcedir + "/" + audiofbase + ".rdf", "w")
+                perfA = performanceAudioConstruct.read()
+                perfA = perfA.format(
+                        performanceAudio = uri(perfuri + "/musicalmanifestation/" +audiofbase)
+                )
+                sidecart = g.query(perfA)
+                sidecartFile.write(sidecart.serialize(format="turtle"))
+                sidecartFile.close()
+                performanceAudioConstruct.close()
         
         
 
@@ -518,13 +556,15 @@ if __name__ == "__main__":
 #    parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
 #    parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
     parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
-#    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
+    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
 #    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
 #    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
-#    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
+    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
 #    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
 ##    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
-   # print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
+#    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
     generateAnnotator(g, userinputrows, ringcycle, rdfbase)
+    generatePerformance(g, userinputrows, ringcycle, rdfbase)
+    generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
 
 

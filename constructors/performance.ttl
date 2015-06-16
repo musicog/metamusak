@@ -30,7 +30,6 @@ WHERE {{
     BIND({performanceTimeLineMapMMRE} AS ?performanceTimeLineMapMMRE) .
     BIND({performanceTimeLineMapPerformanceAudio} AS ?performanceTimeLineMapPerformanceAudio) .
     ?performance ?perfs ?perfo ;
-#		mo:recorded_as ?digitalSignal ; #FIXME put back here for construct
         mo:performer ?Agent2 ;
         mo:conductor ?Agent1 ;
         mo:performance_of ?musicalWork ;

@@ -10,27 +10,19 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
-#CONNECTION TO OPERA
+CONSTRUCT {{
+    ?performanceAudio ?pAs ?pAo .
+    ?digitalSignal ?dSs ?dSo .
+    ?digitalSignalInterval ?dSIs ?dSIo .
+}} WHERE {{
+    BIND({performanceAudio} as ?performanceAudio) .
+    ?performanceAudio ?pAs ?pAo ;
+                       mo:publication_of ?digitalSignal .
 
+    ?digitalSignal ?dSs ?dSo ;
+                    mo:time ?digitalSignalInterval .
+            
+    ?digitalSignalInterval ?dSIs ?dSIo .
+}}
 
-{performance}	mo:recorded_as {digitalSignal} . #FIXME remove for construct
-
-{performanceAudio} a mo:Record ;
-				   mo:media_type dct:Sound ;
-				   rdfs:label "performance audio" ;
-				   mo:other_release_of {substituteAudio} ;
-				   mo:publication_of {digitalSignal} .
-
-#substitute audio has its own .ttl file
-
-{digitalSignal} a mo:DigitalSignal ;
-                mo:time _:digitalSignalInterval .
-		
-_:digitalSignalInterval a tl:Interval ;		
-				tl:start {digitalSignalIntervalStart} ;
-				tl:duration {digitalSignalIntervalDuration} ;
-				tl:timeline {performanceAudioTimeLine} ;
-				tl:timeline {performanceTimeLine} .
-
-
- 
+     
