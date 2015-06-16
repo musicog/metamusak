@@ -1,5 +1,6 @@
 prefix ma: <http://www.w3.org/ns/ma-ont#> 
 prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix dct: <http://purl.org/dc/terms/> 
 prefix mo: <http://purl.org/ontology/mo/> 
 prefix event: <http://purl.org/NET/c4dm/event.owl#> 
 prefix foaf: <http://xmlns.com/foaf/0.1/> 
@@ -10,18 +11,19 @@ prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {annotatorVideo} a mo:DigitalSignal ;
-				 mo:records {freehandAnnotation};
-				 mo:time {annotatorVideoInterval} ;
+                 #FIXME removing freehandAnnotation here for now - needs fixing
+                 #mo:records [freehandAnnotation];
+                 mo:time _:annotatorVideoInterval;
 				 mo:media_type dct:MovingImage ;
 				 rdfs:comment "Video footage of the annotator doing annotation" .
 
-{annotatorVideoInterval} a tl:Interval ;
+_:annotatorVideoInterval a tl:Interval ;
 						tl:start {annotatorVideoIntervalStart} ;
 						tl:duration {annotatorVideoIntervalDuration} ;
 						tl:timeline {annotatorActivityTimeLine} ;
 						tl:timeline {annotatorVideoTimeLine} .
 					 
-# {AnnotationEvent} has its own file
-# Each {AnnotatorVideo} contains many {AnnotationEvents}
-# Each {AnnotatorVideo} has one creation date and one body.
-#{freehandAnnotation} = freehandAnnotationLayer1.ttl
+# [AnnotationEvent] has its own file
+# Each [AnnotatorVideo] contains many [AnnotationEvents]
+# Each [AnnotatorVideo] has one creation date and one body.
+#[freehandAnnotation] = freehandAnnotationLayer1.ttl
