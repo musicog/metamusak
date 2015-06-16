@@ -1,0 +1,38 @@
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix dct: <http://purl.org/dc/terms/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
+
+#This is the dictated annotations.
+
+{performance}	mo:recorded_as {annotatorAudioBody} . #FIXME remove for construct
+
+{annotatorAudio} a oa:Annotation ;
+				  oa:hasTarget {performance} ;
+				  oa:annotatedBy {Agent5} ;
+				  oa:hasBody {annotatorAudioBody} .
+
+{annotatorAudioBody} a mo:DigitalSignal ;
+                 mo:time _:annotatorAudioBodyInterval ;
+				 mo:media_type dct:Sound .
+				 
+
+_:annotatorAudioBodyInterval a tl:Interval ;
+						tl:start {annotatorAudioBodyIntervalStart};
+						tl:duration {annotatorAudioBodyIntervalDuration} ;
+						tl:timeline {annotatorActivityTimeLine} ;
+						tl:timeline {annotatorAudioTimeLine} .
+
+
+# Each Performance has many [AnnotationAudio]s attached to it
+# Each [AnnotationAudio] is created by one [Agent] .
+# Each [AnnotationAudio] is created at one point in time.
+#performance has its own file
+#as does [Agent5]

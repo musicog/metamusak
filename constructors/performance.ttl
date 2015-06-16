@@ -1,0 +1,63 @@
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
+
+CONSTRUCT {{
+    ?performance ?perfs ?perfo .
+    ?Agent2 ?a2s ?a2o .
+    ?Agent6 ?a6s ?a6o .
+    ?Agent1 ?a1s ?a1o .
+    ?musicalWork ?mWs ?mWo . 
+    ?composition ?cmps ?cmpo .
+    ?arrangement ?arrs ?arro .
+    ?Agent4 ?a4s ?a4o .
+    ?conceptScore ?cSs ?cSo .
+    ?score a ?scoreType ;
+        mo:publication_of ?conceptScore . 
+    ?performanceTimeLine a tl:AbstractTimeLine .
+    ?performanceTimeLineMapMMRE ?pTLMMs ?pTLMMo .
+    ?performanceTimeLineMapPerformanceAudio ?pTLMPAs ?pTLMPAo .
+}}
+WHERE {{
+    BIND({performance} AS ?performance) .
+    BIND({performanceTimeLineMapMMRE} AS ?performanceTimeLineMapMMRE) .
+    BIND({performanceTimeLineMapPerformanceAudio} AS ?performanceTimeLineMapPerformanceAudio) .
+    ?performance ?perfs ?perfo ;
+#		mo:recorded_as ?digitalSignal ; #FIXME put back here for construct
+        mo:performer ?Agent2 ;
+        mo:conductor ?Agent1 ;
+        mo:performance_of ?musicalWork ;
+        event:time ?performanceTimeLine ;
+		mo:listener ?Agent6 .
+     
+    ?Agent2 ?a2s ?a2o .
+    ?Agent6 ?a6s ?a6o .
+    ?Agent1 ?a1s ?a1o .
+
+    ?musicalWork ?mWs ?mWo; 
+			  mo:arranged_in ?arrangement  ;  
+              mo:composed_in ?composition . 
+
+    ?composition ?cmps ?cmpo .
+
+    ?arrangement ?arrs ?arro ;
+              event:product ?conceptScore .
+
+    ?conceptScore a mo:Score; 
+			   mo:published_as ?score .
+
+    ?score a ?scoreType ;
+        mo:publication_of ?conceptScore .
+
+    ?performanceTimeLine a tl:AbstractTimeLine .
+					
+    ?performanceTimeLineMapMMRE ?pTLMMs ?pTLMMo .
+    ?performanceTimeLineMapPerformanceAudio ?pTLMPAs ?pTLMPAo .
+}}

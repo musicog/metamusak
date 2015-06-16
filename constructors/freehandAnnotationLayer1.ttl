@@ -1,0 +1,30 @@
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
+
+{freehandAnnotationLayer1} a event:Event ;
+					event:agent {Agent5} ;
+					event:factor {performance} ;
+					event:factor {annotatedScoreLayer1} ;
+					event:product {annotatedScoreLayer2} ;
+                    event:time _:freehandAnnotationLayer1Interval ;
+					mo:recorded_as {annotatorVideo} .
+
+_:freehandAnnotationLayer1Interval a tl:Interval ;
+							tl:start {freehandAnnotationLayer1IntervalStart} ;
+							tl:duration {freehandAnnotationLayer1IntervalDuration} ;
+							tl:timeline {annotatorActivityTimeLine}  ;
+							tl:timeline {freehandAnnotationLayer1TimeLine} .
+
+#Agent 5 has its own file (annotator.ttl)
+# as does performance
+# and annotatedscorelayer1
+# and annotatedscorelayer2
+#as does annotator video. There will be many freehandAnnotation events for each annotatorVideo, i.e the latter captures many annotation events becasue these are connected to pages (they are specifically connected to the annotations on that page)

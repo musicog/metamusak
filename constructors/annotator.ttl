@@ -1,0 +1,38 @@
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
+
+
+CONSTRUCT {{ 
+    ?Agent5 ?a5s ?a5o.
+    ?MasterTimeLine ?mtls ?mtlo.
+    ?annotatorActivityTimeLine ?aatls ?aatlo.
+    ?annotatorTimeLineMapAnnotatorAudio ?atlmaas ?atlmaao.
+    ?annotatorTimeLineMapAnnotatorVideo ?atlmavs ?atlmavo.
+    ?annotatorTimeLineMapFreehandAnnotationLayer1 ?atlmfal1s ?atlmfal1o.
+    ?annotatorTimeLineMapFreehandAnnotationVideo ?atlmfavs ?atlmfavo.
+}} WHERE {{ 
+    BIND({Agent5} as ?Agent5) .
+    BIND({MasterTimeLine} as ?MasterTimeLine).
+    BIND({annotatorActivityTimeLine} as ?annotatorActivityTimeLine).
+    BIND({annotatorTimeLineMapAnnotatorAudio} as ?annotatorTimeLineMapAnnotatorAudio).
+    BIND({annotatorTimeLineMapAnnotatorVideo} as ?annotatorTimeLineMapAnnotatorVideo).
+    BIND({annotatorTimeLineMapFreehandAnnotationLayer1} as ?annotatorTimeLineMapFreehandAnnotationLayer1).
+    BIND({annotatorTimeLineMapFreehandAnnotationVideo} as ?annotatorTimeLineMapFreehandAnnotationVideo).
+
+    ?Agent5 ?a5s ?a5o.
+    ?MasterTimeLine ?mtls ?mtlo.
+    ?annotatorActivityTimeLine ?aatls ?aatlo.
+    ?annotatorTimeLineMapAnnotatorAudio ?atlmaas ?atlmaao.
+    ?annotatorTimeLineMapAnnotatorVideo ?atlmavs ?atlmavo.
+    ?annotatorTimeLineMapFreehandAnnotationLayer1 ?atlmfal1s ?atlmfal1o.
+    ?annotatorTimeLineMapFreehandAnnotationVideo ?atlmfavs ?atlmfavo.
+}}	
+#we've mapped each timeline pair (domain and range) as belonging to a different ShiftMap. 				

@@ -1,0 +1,19 @@
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix dct: <http://purl.org/dc/terms/>
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+
+
+{pageOfAnnotatedScoreLayer1} a owl:Thing ;
+							mo:media_type dct:Image ;
+							prov:wasDerivedFrom {pageOfScore} .
+							
+#one page of [pageOfAnnotatedScoreLayer1] produced from 1 [pageOfScore] produces 1 [pageOfAnnotatedScoreLayer2] but this last bit is defined in the file for [pageOfAnnotatedScoreLayer2] and [pageOfScore] is defined in score.ttl
