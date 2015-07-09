@@ -47,14 +47,14 @@ _:composition a mo:Composition ;
 
 _:arrangement a mo:Arrangement ; 
 			  event:agent {Agent4} ;
-              event:product {conceptScore} .
+              event:product _:conceptScore .
 #mapped as 1 to 1 relationship between arrangement and score
 #Score in the FRBR-sense of abstract score
 			  
 {Agent4} a foaf:Agent ; 
 		 rdfs:label "arranger name" .
 
-{conceptScore} a mo:Score; 
+_:conceptScore a mo:Score; 
 			   mo:published_as {score} .
 
 {score} a mo:PublishedScore ;
