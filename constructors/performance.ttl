@@ -49,8 +49,7 @@ WHERE {{
     ?arrangement ?arrs ?arro ;
               event:product ?conceptScore .
 
-    ?conceptScore a mo:Score; 
-			   mo:published_as ?score .
+    ?conceptScore ?cSs ?cSo .
 
     ?score a ?scoreType ;
         mo:publication_of ?conceptScore .

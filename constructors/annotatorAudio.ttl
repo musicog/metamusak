@@ -10,29 +10,22 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
-#This is the dictated annotations.
+CONSTRUCT {{
 
-{performance}	mo:recorded_as {annotatorAudioBody} . #FIXME remove for construct
+}} WHERE {{
+    {annotatorAudio} a oa:Annotation ;
+                      oa:hasTarget {performance} ;
+                      oa:annotatedBy {Agent5} ;
+                      oa:hasBody {annotatorAudioBody} .
 
-{annotatorAudio} a oa:Annotation ;
-				  oa:hasTarget {performance} ;
-				  oa:annotatedBy {Agent5} ;
-				  oa:hasBody {annotatorAudioBody} .
+    {annotatorAudioBody} a mo:DigitalSignal ;
+                     mo:time _:annotatorAudioBodyInterval ;
+                     mo:media_type dct:Sound .
+                     
 
-{annotatorAudioBody} a mo:DigitalSignal ;
-                 mo:time _:annotatorAudioBodyInterval ;
-				 mo:media_type dct:Sound .
-				 
-
-_:annotatorAudioBodyInterval a tl:Interval ;
-						tl:start {annotatorAudioBodyIntervalStart};
-						tl:duration {annotatorAudioBodyIntervalDuration} ;
-						tl:timeline {annotatorActivityTimeLine} ;
-						tl:timeline {annotatorAudioTimeLine} .
-
-
-# Each Performance has many [AnnotationAudio]s attached to it
-# Each [AnnotationAudio] is created by one [Agent] .
-# Each [AnnotationAudio] is created at one point in time.
-#performance has its own file
-#as does [Agent5]
+    _:annotatorAudioBodyInterval a tl:Interval ;
+                            tl:start {annotatorAudioBodyIntervalStart};
+                            tl:duration {annotatorAudioBodyIntervalDuration} ;
+                            tl:timeline {annotatorActivityTimeLine} ;
+                            tl:timeline {annotatorAudioTimeLine} .
+}}
