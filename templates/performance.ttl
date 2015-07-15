@@ -58,7 +58,7 @@ _:conceptScore a mo:Score;
 			   mo:published_as {score} .
 
 {score} a mo:PublishedScore ;
-        mo:publication_of {conceptScore} .
+    mo:publication_of _:conceptScore .
 
 {performanceTimeLine} a tl:AbstractTimeLine .
 					
