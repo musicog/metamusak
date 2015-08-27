@@ -68,7 +68,9 @@ def uid():
 def parseScore(g, performances, filebase, rdfbase) :
     for p in performances:
         perfid = p["uid"]
-        perfuri = rdfbase + perfid
+        perfuri = rdfbase + perfid # URI of the "root" of THIS performance
+
+        # set up the source directory for the score pages
         sourcedir = filebase + "performance/" + perfid + "/musicalmanifestation/score"
         
         # read in performance page turns
@@ -91,13 +93,14 @@ def parseScore(g, performances, filebase, rdfbase) :
                 if m or n: # act ends are just page turns in richard's tool
                     thisPage = dict()
                     #FIXME URGENTLY: Address the pagenum discrepancy between Richard and Carolin (see R script)
-                    if m:
-                        thisPage["pageNum"] =  int(m.group(1))
+                    if m: # note -- m is a complex object representing the outcome of the regex match, not just the \d+ captured
+                        thisPage["pageNum"] =  int(m.group(1)) # m.group(1) is the \d+ that was captured, but by default its as a string, so we use int() to turn it into a number
                     else: 
                         thisPage["pageNum"] = prevPage+1
                     thisPage["opera"] = line[1]
                     thisPage["act"] = line[2]
                     try:
+                        # strptime takes a string that looks like a timestamp and turns it into a "real" time object -- look it up ;)
                         thisPage["turntime"] = datetime.strptime(line[4], "%Y-%m-%d %H:%M:%S.%f")
                     except:
                     #TODO for Richard: tool specifies pageturns to millisecond but act starts/ends to the second
@@ -106,7 +109,7 @@ def parseScore(g, performances, filebase, rdfbase) :
                     # even the first page, as there is other timestamped info in the file (e.g. start of act)
                     # we can rely on this when calculating MMRE durations
                     thisPage["starttime"] = prevTime
-                    thisPage["duration"] = thisPage["turntime"] - thisPage["starttime"] 
+                    thisPage["duration"] = thisPage["turntime"] - thisPage["starttime"]  # i.e. page end minus page start = page duration
                     pageturns[thisPage["pageNum"]] = thisPage
                     prevPage = thisPage["pageNum"] # track for when we reach an act ends event
                 # regardless of event type, record the timestamp for MMRE duration calculation
@@ -305,8 +308,9 @@ def parsePerformanceAudio(g, performances, filebase, rdfbase):
         perfuri = rdfbase + p["uid"]
         for audiofname in os.listdir(sourcedir):
             if audiofname.endswith(".mp3"):
-                # found some annotator audio)!
+                # found some annotator audio!
                 mediainfo = getMediaInfo(sourcedir + audiofname)
+                ##TODO below for loop does nothing, kill it?
                 for key in mediainfo:
                     if mediainfo[key] is None:
                         continue # skip non-values
@@ -433,7 +437,7 @@ def getMediaInfo(mediaFile):
     return thisfile
 
 def mintRequiredURIs(thisPerformance):
-    #TODO do something useful
+    #TODO in the future when we work on the web interface: do something useful
     return thisPerformance
 
 
@@ -572,30 +576,37 @@ def generateAnnotatedScore(g, performances, filebase, rdfbase):
 
 
 if __name__ == "__main__": 
-    # physical path
-    ringcycle = "/home/davidw/MetaRingCycle/"
-    perfbase = ringcycle + "performance/"
-    # rdf path
-#    rdfbase = "http://performance.data.t-mus.org/performance/" 
+    # Set up physical paths, i.e. where things live on the hard drive
+    ringcycle = "/home/davidw/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
+    perfbase = ringcycle + "performance/" # the performance folder
+    # rdf path, i.e. the prefix of every URI generated
     rdfbase = "http://performance.data.t-mus.org/performance/" 
 
+############INPUT READING - currently from CSV, in future from web interface################################
+
+
+    # Read in the user's input - currently from CSV files in the metamusak folder; in future, from a web interface
     userinputfile = csv.reader(open(ringcycle + "metamusak/user_input.csv", "rU"), delimiter = ",", quotechar = '"')
-    userinputrows = list()
-    userinputfields = list()
+    userinputrows = list() # will contain all the content, i.e. all the dictionaries holding key:value pairs for each opera
+    userinputfields = list() # will contain all the column headers
     for ix, line in enumerate(userinputfile):
-        if ix == 0: # header row - populate fields
+        if ix == 0: # header row - populate fields (i.e. column headers in CSV)
             for field in line:
                 userinputfields.append(field)
         else : # content row: fill in fields for this performance
-            thisPerformance = dict()
+            thisPerformance = dict() # will hold key:value pairs, where keys are column headers and values are the content
             for ix, field in enumerate(userinputfields):
                 thisPerformance[field] = line[ix]
-            # mint any URIs not provided by the user...
+            # mint any URIs not provided by the user... TODO in the future, currently does nothing
             thisPerformance = mintRequiredURIs(thisPerformance)
             userinputrows.append(thisPerformance)
-    for p in userinputrows:
+    for p in userinputrows: # for each dictionary representing a performance's key : value pairs
         # determine the UID for this performance, i.e. the <UID> in  /performance/<UID>
         p["uid"] = p["performanceID"][p["performanceID"].rindex("/")+1:]
+
+
+
+    # Read in the offset data - currently from CSV files in the metamusak folder; in future, from a web interface
     syncTimestampsFile = csv.reader(open(ringcycle + "metamusak/syncTimestamps.csv", "rU"), delimiter = ",", quotechar = '"')
     syncTimestamps = list()
     syncTimestampFields = list()
@@ -612,7 +623,7 @@ if __name__ == "__main__":
         # determine the UID for this performance, i.e. the <UID> in  /performance/<UID>
         p["uid"] = p["performanceID"][p["performanceID"].rindex("/")+1:]
 
-# TODO finish freehandAnnotationvideo stuff
+# TODO finish freehandAnnotationVideo stuff
 #    pencastOffsetsFile = csv.reader(open(ringcycle + "metamusak/pencastToVideo_offsets.csv", "rU"), delimiter=",", quotechar = '"')
 #    pencastOffsets = list()
 #    pencastOffsetFields = list()
@@ -622,9 +633,12 @@ if __name__ == "__main__":
 #                pencastOffsetFields.append(field)
 #        else:
 
+############ NOW FINISHED READING INPUT ###############################################
 
-    offsets = calculateTimelineOffsets(syncTimestamps)
-    g = Graph()
+    offsets = calculateTimelineOffsets(syncTimestamps) # figure out the timeline offset logic
+    g = Graph() # create the grandmaster graph
+
+############ START PARSING, i.e. filling templates and reading into graph #############
     parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
     parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
     parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
@@ -635,6 +649,8 @@ if __name__ == "__main__":
 #    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
 ##    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
 #    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
+
+############ FINISHED PARSING, now construct the sidecart turtle and write into files #
     generateAnnotator(g, userinputrows, ringcycle, rdfbase)
     generatePerformance(g, userinputrows, ringcycle, rdfbase)
     generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
