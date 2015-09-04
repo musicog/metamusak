@@ -10,20 +10,14 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
-{annotatorVideo} a mo:DigitalSignal ;
-                 #FIXME removing freehandAnnotation here for now - needs fixing
-                 #mo:records [freehandAnnotation];
-                 mo:time _:annotatorVideoInterval;
-				 mo:media_type dct:MovingImage ;
-				 rdfs:comment "Video footage of the annotator doing annotation" .
+CONSTRUCT{{
+	?annotatorVideo ?aVp ?aVo.
+	?annotatorVideoInterval ?aVIp ?aVIo .
+}} WHERE {{
+	BIND({annotatorVideo} as ?annotatorVideo) .
+	?annotatorVideo mo:time ?annotatorVideoInterval ;
+		?aVp ?aVo .
+	?annotatorVideoInterval ?aVIp ?aVIo .
+}}
 
-_:annotatorVideoInterval a tl:Interval ;
-						tl:start {annotatorVideoIntervalStart} ;
-						tl:duration {annotatorVideoIntervalDuration} ;
-						tl:timeline {annotatorActivityTimeLine} ;
-						tl:timeline {annotatorVideoTimeLine} .
-					 
-# [AnnotationEvent] has its own file
-# Each [AnnotatorVideo] contains many [AnnotationEvents]
-# Each [AnnotatorVideo] has one creation date and one body.
-#[freehandAnnotation] = freehandAnnotationLayer1.ttl
+

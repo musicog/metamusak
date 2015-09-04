@@ -120,8 +120,8 @@ def parseScore(g, performances, filebase, rdfbase) :
 
         # now work through the page image files
         for page in os.listdir(sourcedir):
-            if page.endswith(".jpg"):  # only jpg files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
-                m = re.match("\w+-(\d+).jpg", page)
+            if page.endswith(".pdf"):  # only pdf files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
+                m = re.match("\w+(\d+).pdf", page)
                 pagenum = int(m.group(1))
                 if pagenum in pageturns:
                     # set up score.ttl
@@ -379,8 +379,8 @@ def parseAnnotatorAudio(g, performances, filebase, rdfbase):
         # so have to check for their existence before writing sidecart
    
 def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
-    annotatorAudioTemplate = open(filebase + "metamusak/templates/annotatorVideo.ttl", "r")
-    anno = annotatorAudioTemplate.read()
+    annotatorVideoTemplate = open(filebase + "metamusak/templates/annotatorVideo.ttl", "r")
+    anno = annotatorVideoTemplate.read()
     for p in performances:
         sourcedir =  filebase + "performance/" + p["uid"] + "/annotator/"
         perfuri = rdfbase + p["uid"]
@@ -506,9 +506,9 @@ def generateScore(g, performances, filebase, rdfbase):
         perfuri = rdfbase + perfid
         sourcedir = filebase + "performance/" + perfid + "/musicalmanifestation/score"
         for page in os.listdir(sourcedir):
-            if page.endswith(".jpg"):  # only jpg files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
+            if page.endswith(".pdf"):  # only pdf files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
                 pagebase = os.path.splitext(page)[0]
-                m = re.match("\w+-(\d+).jpg", page)
+                m = re.match("\w+(\d+).pdf", page)
                 pagenum = int(m.group(1))
                 scoreConstruct = open(filebase + "metamusak/constructors/score.ttl", "r")
                 scoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/"+pagebase+".ttl", "w")
@@ -574,10 +574,52 @@ def generateAnnotatedScore(g, performances, filebase, rdfbase):
                 freehandAnnotationLayer1SidecartFile = open(freehandsourcedir + "/" + str(pagenum) + ".ttl", "w")
                 freehandAnnotationLayer1SidecartFile.write(freehandAnnotationLayer1Sidecart.serialize(format="turtle"))
 
+##### start TMTN #######
+def generateAnnotatorVideo(g, performances, filebase, rdfbase):
+    for p in performances:
+        perfid = p["uid"]
+        perfuri = rdfbase + perfid
+        sourcedir = filebase + "performance/" + perfid + "/annotator/"
+        for videofname in os.listdir(sourcedir):
+                if videofname.endswith(".mov"):
+                    basename = urllib.quote(os.path.splitext(videofname)[0])
+                    sidecartFile = open(filebase + "performance/" + perfid + "/annotator/" + basename + ".ttl", "w")
+                    annotatorVideoConstruct = open(filebase + "metamusak/constructors/annotatorVideo.ttl")
+                    anno = annotatorVideoConstruct.read()
+                    anno = anno.format(
+                            annotatorVideo = uri(perfuri + "/annotator/" + basename)
+                    )
+                    sidecart = g.query(anno)
+                    sidecartFile.write(sidecart.serialize(format="turtle"))
+                    sidecartFile.close()
+                    annotatorVideoConstruct.close()
+
+def generateAnnotatorAudio(g, performances, filebase, rdfbase):
+        for p in performances:
+            perfid = p["uid"]
+            perfuri = rdfbase + perfid
+            sourcedir = filebase + "performance/" + perfid + "/annotation/audio/"
+            for audiofname in os.listdir(sourcedir):
+                if audiofname.endswith(".m4a"):
+                    basename = urllib.quote(os.path.splitext(audiofname)[0])
+                    sidecartFile = open(filebase + "performance/" + perfid + "/annotation/audio/" + basename + ".ttl", "w")
+                    annotatorAudioConstruct = open(filebase + "metamusak/constructors/annotatorAudio.ttl")
+                    anno = annotatorAudioConstruct.read()
+                    anno = anno.format(
+                            annotatorAudio = uri(perfuri + "/annotation/audio/" + basename)
+                    )
+                    sidecart = g.query(anno)
+                    sidecartFile.write(sidecart.serialize(format="turtle"))
+                    sidecartFile.close()
+                    annotatorAudioConstruct.close()
+
+##### end TMTN  #####
+
+
 
 if __name__ == "__main__": 
     # Set up physical paths, i.e. where things live on the hard drive
-    ringcycle = "/home/davidw/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
+    ringcycle = "/Users/terhi/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
     perfbase = ringcycle + "performance/" # the performance folder
     # rdf path, i.e. the prefix of every URI generated
     rdfbase = "http://performance.data.t-mus.org/performance/" 
@@ -643,18 +685,19 @@ if __name__ == "__main__":
     parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
     parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
     parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
-#    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
-#    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
+    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
+    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
     parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
 #    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
 ##    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
 #    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
 
 ############ FINISHED PARSING, now construct the sidecart turtle and write into files #
-    generateAnnotator(g, userinputrows, ringcycle, rdfbase)
-    generatePerformance(g, userinputrows, ringcycle, rdfbase)
-    generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
+#    generateAnnotator(g, userinputrows, ringcycle, rdfbase)
+#    generatePerformance(g, userinputrows, ringcycle, rdfbase)
+#    generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
     generateScore(g, userinputrows, ringcycle, rdfbase)
-    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
-
+#    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
+#    generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
+    generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
 
