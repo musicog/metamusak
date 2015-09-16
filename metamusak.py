@@ -21,8 +21,27 @@ def calculateTimelineOffsets(performanceTimestamps):
         # we declare performanceAudio to be our ground truth universal timeline
         # thus, figure out difftime between that and the others
         offsets["basetime"] = performanceAudioSynctime
-        freehandAnnotationVideo = offsets["basetime"] #FIXME figure out what to do here
-
+        freehandAnnotationVideo = offsets["basetime"] #FIXME figure out what to do here: 
+        #For each {freehandAnnotationVideo}:
+            #Calculate offset between performance time and annotator video time:
+                           # offsets["performanceAudio"] = 0;
+                            #if p["annotatorVideo"]:
+                            #    offsets["annotatorVideo"] = generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
+                            #else:
+                            #    offsets["annotatorVideo"] = "None"
+            #then adjust by start time of each pencast file (freehandAnnotation_file_startTime), 
+                            # 
+                            #
+                            #
+                            #
+            #then subtract delay between start of file and start of writing (WritingStartime_delay)
+                            #
+                            #
+                            #
+                            #
+                            #
+            #use this to calculate the offset between performance time and start time of each pencast....or start of writing in each pencast?
+        
         offsets["performanceAudio"] = 0;
         if p["annotatorAudio"]: # we only have it for Rheingold
             offsets["annotatorAudio"] = generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S"))
@@ -37,8 +56,11 @@ def calculateTimelineOffsets(performanceTimestamps):
             offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
         else:  #FIXME THIS IS A LIE -- we need to figure out the correct value for Walkuere
             offsets["annotatorVideo"] = 0
-        offsets["freehandAnnotationLayer1"] = getOffsetSeconds(freehandAnnotationLayer1Synctime, offsets["basetime"]) #TODO fhAL1St also has microseconds...
+        offsets["freehandAnnotationLayer1"] = getOffsetSeconds(freehandAnnotationLayer1Synctime, offsets["basetime"]) #TODO fhAL1St also has microseconds..."%d/%m/%Y %H:%M:%S.%f"
+###########        
         offsets["freehandAnnotationVideo"] = getOffsetSeconds(freehandAnnotationVideo, offsets["basetime"])
+        
+###########
         offsets["MMRE"] = getOffsetSeconds(MMRESynctime, offsets["basetime"])
         performanceOffsets[offsets["perfid"]] = offsets
     return performanceOffsets
@@ -385,7 +407,7 @@ def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
         sourcedir =  filebase + "performance/" + p["uid"] + "/annotator/"
         perfuri = rdfbase + p["uid"]
         for videofname in os.listdir(sourcedir):
-            if videofname.endswith(".mov"): #TODO enable other formats
+            if videofname.endswith(".MTS"): #TODO enable other formats e.g. .mov, .mp4, etc
                 # found some annotator video!
                 mediainfo = getMediaInfo(sourcedir + videofname)
                 for key in mediainfo:
@@ -402,6 +424,32 @@ def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
                     )
                 g.parse(data=query, format="turtle")
 
+################### start TMTNF ########################
+def parseFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets):
+    freehandAnnotationVideoTemplate = open(filebase + "/metamusak/templates/freehandAnnotationVideo.ttl", "r")
+    anno = freehandAnnotationVideoTemplate.read()
+    for p in performances:
+        sourcedir = filebase + "performance/" + p["uid"] + "/annotation" + "/freehandAnnotationVideo/"
+        perfuri = rdfbase + p["uid"]
+        for videofname in os.listdir(sourcedir):
+            if videofname.endswith(".mp4"):
+                mediainfo = getMediaInfo(sourcedir + videofname)
+                for key in mediainfo: 
+                    #print key + " : " + mediainfo[key]
+                    if mediainfo[key] is None:
+                        continue
+                query = anno.format(
+                        #performance = uri(perfuri),
+                        #Agent5 = uri(p["annotatorID"]),
+                        freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(os.path.splitext(videofname)[0])),
+                        freehandAnnotationVideoBody = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(videofname)),
+                        freehandAnnotationVideoBodyIntervalStart = lit(mediainfo["date"]),
+                        freehandAnnotationVideoBodyIntervalDuration = lit(mediainfo["duration"]),
+                        annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
+                        freehandAnnotationVideoTimeLine = uri(perfuri + "/timelines/freehandAnnotationVideo"),
+                    )
+                g.parse(data=query, format="turtle")
+###############################################################
 def getMediaInfo(mediaFile):
     mediainfo = MediaInfo.parse(mediaFile)
     thisfile = dict()
@@ -410,7 +458,7 @@ def getMediaInfo(mediaFile):
 #                thisfile["rdftool_opera"] = opera
 #                thisfile["rdftool_filename"] = video
 #                thisfile["rdftool_filepath"] = ringcycle + "video/" + opera + "/"
-            thisfile["duration"] = str(track.duration * .001)
+            thisfile["duration"] = str(float(track.duration) * .001)
             thisfile["date"] = track.file_last_modification_date
 #                thisfile["file_size"] = track.file_size
             thisfile["title"] = track.file_name
@@ -438,6 +486,9 @@ def getMediaInfo(mediaFile):
 
 def mintRequiredURIs(thisPerformance):
     #TODO in the future when we work on the web interface: do something useful
+    # take human readable label
+    # hash it into a URI
+    # disambiguate between people? Optionally for now, possibly just do this in the Web UI
     return thisPerformance
 
 
@@ -521,18 +572,6 @@ def generateScore(g, performances, filebase, rdfbase):
                 scoreConstruct.close()
                 scoreSidecartFile.close()
 
-                performancePageturnConstruct = open(filebase + "metamusak/constructors/performancePageturn.ttl")
-                performancePageturnSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/pageturn/"+pagebase+".ttl", "w")
-                pt = performancePageturnConstruct.read()
-                pt = pt.format(
-                    MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum)) 
-                )
-                performancePageturnSidecart = g.query(pt)
-                performancePageturnSidecartFile.write(performancePageturnSidecart.serialize(format="turtle"))
-                performancePageturnSidecartFile.close()
-                performancePageturnConstruct.close()
-                score1sourcedir = filebase + "performance/" + perfid + "/musicalmanifestation/score"
-
         
 def generateAnnotatedScore(g, performances, filebase, rdfbase):
     for p in performances:
@@ -581,7 +620,8 @@ def generateAnnotatorVideo(g, performances, filebase, rdfbase):
         perfuri = rdfbase + perfid
         sourcedir = filebase + "performance/" + perfid + "/annotator/"
         for videofname in os.listdir(sourcedir):
-                if videofname.endswith(".mov"):
+                print videofname
+                if videofname.endswith(".MTS"):
                     basename = urllib.quote(os.path.splitext(videofname)[0])
                     sidecartFile = open(filebase + "performance/" + perfid + "/annotator/" + basename + ".ttl", "w")
                     annotatorVideoConstruct = open(filebase + "metamusak/constructors/annotatorVideo.ttl")
@@ -613,13 +653,32 @@ def generateAnnotatorAudio(g, performances, filebase, rdfbase):
                     sidecartFile.close()
                     annotatorAudioConstruct.close()
 
+
+def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets):
+    for p in performances:
+        perfid = p["uid"]
+        perfuri = rdfbase + p["uid"]
+        sourcedir = filebase + "performance/" + perfid + "/annotation" + "/freehandAnnotationVideo/"
+        for videofname in os.listdir(sourcedir):
+            if videofname.endswith(".mp4"):
+                    freehandAnnotationVideoConstruct = open(filebase + "metamusak/constructors/freehandAnnotationVideo.ttl", "r")
+                    basename = urllib.quote(os.path.splitext(videofname)[0])
+                    sidecartFile = open(filebase + "performance/" + perfid + "/annotation" + "/freehandAnnotationVideo/" + basename + ".ttl", "w")
+                    anno = freehandAnnotationVideoConstruct.read()
+                    anno = anno.format(
+                            freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + basename)
+                    )
+                    sidecart = g.query(anno)
+                    sidecartFile.write(sidecart.serialize(format="turtle"))
+                    sidecartFile.close()
+                    freehandAnnotationVideoConstruct.close()
 ##### end TMTN  #####
 
 
 
 if __name__ == "__main__": 
     # Set up physical paths, i.e. where things live on the hard drive
-    ringcycle = "/Users/terhi/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
+    ringcycle = "/Volumes/Terhin_oma_eksternali/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
     perfbase = ringcycle + "performance/" # the performance folder
     # rdf path, i.e. the prefix of every URI generated
     rdfbase = "http://performance.data.t-mus.org/performance/" 
@@ -682,22 +741,23 @@ if __name__ == "__main__":
 
 ############ START PARSING, i.e. filling templates and reading into graph #############
     parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
-    parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
-    parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
-    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
-    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
+#    parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
+#    parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
+#    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
+#    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
     parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
-    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
+##    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
 #    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
-##    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
+    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
 #    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
 
 ############ FINISHED PARSING, now construct the sidecart turtle and write into files #
-#    generateAnnotator(g, userinputrows, ringcycle, rdfbase)
+##    generateAnnotator(g, userinputrows, ringcycle, rdfbase)
 #    generatePerformance(g, userinputrows, ringcycle, rdfbase)
 #    generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
     generateScore(g, userinputrows, ringcycle, rdfbase)
-#    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
-#    generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
-    generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
+##    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
+    generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
+#    generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
+    generateFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets)
 

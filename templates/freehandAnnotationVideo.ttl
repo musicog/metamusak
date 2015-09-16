@@ -8,24 +8,25 @@ prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 prefix oa: <http://www.w3.org/ns/oa#> 
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
+prefix dct: <http://purl.org/dc/terms/>
 
-{freehandAnnotation} a oa:Annotation ;
-					 oa:hasTarget {performance} ;
-					 oa:annotatedBy {Agent5} ;
-					 oa:hasBody {freehandAnnotationBody} .
+{freehandAnnotationVideo} a oa:Annotation ;
+					 #oa:hasTarget [performance] ;
+					 #oa:annotatedBy [Agent5] ;
+					 oa:hasBody {freehandAnnotationVideoBody} .
 
-{freehandAnnotationBody} a mo:MusicalManifestation ;
-					 	mo:time {freehandAnnotationBodyInterval} ;
+{freehandAnnotationVideoBody} a mo:MusicalManifestation ;
+					 	mo:time _:freehandAnnotationVideoBodyInterval ;
 					 	mo:media_type dct:MovingImage ;
 					 	rdfs:comment "Freehand annotations made with the digital pen." .
 
-{freehandAnnotationBodyInterval} a tl:Interval ;
-					 			tl:start {freehandAnnotationBodyIntervalStart} ;
-					 			tl:duration {freehandAnnotationBodyIntervalDuration} ;
+_:freehandAnnotationVideoBodyInterval a tl:Interval ;
+					 			tl:start {freehandAnnotationVideoBodyIntervalStart} ;
+					 			tl:duration {freehandAnnotationVideoBodyIntervalDuration} ;
 								tl:timeline {annotatorActivityTimeLine}  ;
-								tl:timeline {freehandAnnotationTimeLine} .
+								tl:timeline {freehandAnnotationVideoTimeLine} .
 					 
-# {performance} has its own file
-# {Agent5} has its own file
-# Each {performance} has many associated {freehandAnnotations}
-# Each {freehandAnnotation} has one agent and one {annotatedAt} and one {Body}.
+# [performance] has its own file
+# [Agent5] has its own file
+# Each [performance] has many associated [freehandAnnotations]
+# Each [freehandAnnotation] has one agent and one [annotatedAt] and one [Body].

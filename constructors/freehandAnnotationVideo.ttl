@@ -9,23 +9,19 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
-{freehandAnnotation} a oa:Annotation ;
-					 oa:hasTarget {performance} ;
-					 oa:annotatedBy {Agent5} ;
-					 oa:hasBody {freehandAnnotationBody} .
+CONSTRUCT{{
+	?freehandAnnotationVideo ?fAVp ?fAVo.
+	?freehandAnnotationVideoBody ?fAVBp ?fAVBo .
+	?freehandAnnotationVideoBodyInterval ?fAVBIp ?fAVBIo .
+}}
+WHERE
+{{BIND ({freehandAnnotationVideo} as ?freehandAnnotationVideo) .
 
-{freehandAnnotationBody} a mo:MusicalManifestation ;
-					 	mo:time {freehandAnnotationBodyInterval} ;
-					 	mo:media_type dct:MovingImage ;
-					 	rdfs:comment "Freehand annotations made with the digital pen." .
+	?freehandAnnotationVideo oa:hasBody ?freehandAnnotationVideoBody ;
+							?fAVp ?fAVo .
+	?freehandAnnotationVideoBody mo:time ?freehandAnnotationVideoBodyInterval ;
+							?fAVBp ?fAVBo .
+	?freehandAnnotationVideoBodyInterval ?fAVBIp ?fAVBIo .
+							
+	}}
 
-{freehandAnnotationBodyInterval} a tl:Interval ;
-					 			tl:start {freehandAnnotationBodyIntervalStart} ;
-					 			tl:duration {freehandAnnotationBodyIntervalDuration} ;
-								tl:timeline {annotatorActivityTimeLine}  ;
-								tl:timeline {freehandAnnotationTimeLine} .
-					 
-# {performance} has its own file
-# {Agent5} has its own file
-# Each {performance} has many associated {freehandAnnotations}
-# Each {freehandAnnotation} has one agent and one {annotatedAt} and one {Body}.
