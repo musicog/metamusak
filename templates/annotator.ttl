@@ -10,7 +10,8 @@ prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {Agent5} a foaf:Agent ;
-		rdfs:label "annotator" .
+		rdfs:label "annotator" ;
+		rdfs:comment "A person who engages in the task of annotation" .
         
 
 {MasterTimeLine} a tl:PhysicalTimeLine .

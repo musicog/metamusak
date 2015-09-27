@@ -14,6 +14,7 @@ prefix owl: <http://www.w3.org/2002/07/owl#>
 
 {pageOfAnnotatedScoreLayer1} a owl:Thing ;
 							mo:media_type dct:Image ;
-							prov:wasDerivedFrom {pageOfScore} .
+							prov:wasDerivedFrom {pageOfScore} ;
+							rdfs:comment "A digital image of a page of a musical score, which has been previously annotated by the annotator to capture the first round of annotations, such as those features and elements that can be determined from the score itself." .
 							
 #one page of [pageOfAnnotatedScoreLayer1] produced from 1 [pageOfScore] produces 1 [pageOfAnnotatedScoreLayer2] but this last bit is defined in the file for [pageOfAnnotatedScoreLayer2] and [pageOfScore] is defined in score.ttl

@@ -1,0 +1,25 @@
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix dct: <http://purl.org/dc/terms/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
+
+{sourceAnnotatorVideo} a mo:DigitalSignal ;
+                 #FIXME removing freehandAnnotation here for now - needs fixing
+                 #mo:records [freehandAnnotation];
+                 mo:time _:sourceAnnotatorVideoInterval;
+				 mo:media_type dct:MovingImage ;
+				 rdfs:comment "Original video footage of the annotator doing annotation, directly from the camera" .
+
+_:sourceAnnotatorVideoInterval a tl:Interval ;
+						tl:start {sourceAnnotatorVideoIntervalStart} ;
+						tl:duration {sourceAnnotatorVideoIntervalDuration} ;
+						tl:timeline {sourceAnnotatorActivityTimeLine} ;
+						tl:timeline {sourceAnnotatorVideoTimeLine} .
+					 

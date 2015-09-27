@@ -19,7 +19,8 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 				   mo:media_type dct:Sound ;
 				   rdfs:label "performance audio" ;
 				   mo:other_release_of {substituteAudio} ;
-				   mo:publication_of {digitalSignal} .
+				   mo:publication_of {digitalSignal} ;
+				   rdfs:comment "This is an audio recording of the performance, and may or may not be implicit within the dataset, due to issues such as copyright restrictions" .
 
 #substitute audio has its own .ttl file
 

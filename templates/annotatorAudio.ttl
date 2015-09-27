@@ -21,7 +21,8 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {annotatorAudioBody} a mo:DigitalSignal ;
                  mo:time _:annotatorAudioBodyInterval ;
-				 mo:media_type dct:Sound .
+				 mo:media_type dct:Sound ;
+				 rdfs:comment "Each individual annotatorAudioBody is a separate recording capturing dictated annotations about a performance." .
 				 
 
 _:annotatorAudioBodyInterval a tl:Interval ;

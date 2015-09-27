@@ -10,8 +10,14 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
-{substituteAudio} a mo:Record ;
-				   mo:media_type dct:Sound ;
-   				   rdfs:label "substitute audio" ;
-   				   mo:other_release_of {performanceAudio} ;
-				   rdfs:comment "The substitute audio is an alternative recording of the performance audio, which may not be subject to the same copyright restrictions as the original performance audio" .
+CONSTRUCT{{
+	?sourceAnnotatorVideo ?SaVp ?SaVo.
+	?sourceAnnotatorVideoInterval ?SaVIp ?SaVIo .
+}} WHERE {{
+	BIND({sourceAnnotatorVideo} as ?sourceAnnotatorVideo) .
+	?sourceAnnotatorVideo mo:time ?sourceAnnotatorVideoInterval ;
+		?SaVp ?SaVo .
+	?sourceAnnotatorVideoInterval ?SaVIp ?SaVIo .
+}}
+
+

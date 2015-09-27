@@ -18,7 +18,8 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {pageOfScore} mo:mediatype dct:Image ;
 			  event:factorsIn {MusicalManifestationRealizationEvent} ;
-			  dc:PartOf {score} .
+			  dc:PartOf {score} ;
+			  rdfs:comment "Each page of the score is a digital image of the score, without any type of annotation" .
 # there are many pages in one score
 #one page per [MusicalManifestationRealizationEvent] 
 # [MusicalManifestationRealizationEvent] is defined in performancepageturn.ttl

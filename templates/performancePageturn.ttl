@@ -13,7 +13,8 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 {MusicalManifestationRealizationEvent} a mo:Performance ;
                                        event:time _:MMReventInterval ;
 									   event:factor {pageOfScore} ;
-									   event:agent {Agent6} .
+									   event:agent {Agent6} ;
+									   rdfs:comment "Each MusicalManifestationRealizationEvent represents the point in time when the music unfolds over a specific page of the score." .
 #[agent6] defined in [performance]	
 #[pageOfScore] is defined in score.ttl
 #each page will have one Event, the event is the performance of that page, i.e. when the musicians play the notes that are depicted on that page.

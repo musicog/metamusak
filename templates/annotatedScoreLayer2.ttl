@@ -15,7 +15,8 @@ prefix owl: <http://www.w3.org/2002/07/owl#>
 {pageOfAnnotatedScoreLayer2} a owl:Thing  ;
 							mo:media_type dct:Image ;
 							prov:wasDerivedFrom {pageOfAnnotatedScoreLayer1} ;
-							event:produced_in {freehandAnnotation} .
+							event:produced_in {freehandAnnotation} ;
+							rdfs:comment "A digital image of the score, resulting from the digital live annotation of the pre-annotated score during the live performance." .
 							
 #one page of [pageOfAnnotatedScoreLayer1] produced from 1 [pageOfScore] produces 1 [pageOfAnnotatedScoreLayer2] but tthe first bit is defined in the file for [pageOfAnnotatedScoreLayer1] 
 #[pageOfAnnotatedScoreLayer1] has its own .ttl file

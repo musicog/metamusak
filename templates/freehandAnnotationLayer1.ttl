@@ -16,7 +16,8 @@ prefix owl: <http://www.w3.org/2002/07/owl#>
 					event:factor {annotatedScoreLayer1} ;
 					event:product {annotatedScoreLayer2} ;
                     event:time _:freehandAnnotationLayer1Interval ;
-					mo:recorded_as {annotatorVideo} .
+					mo:recorded_as {annotatorVideo} ;
+					rdfs:comment "This event is the act of creating an annotation on the score digitally." .
 
 _:freehandAnnotationLayer1Interval a tl:Interval ;
 							tl:start {freehandAnnotationLayer1IntervalStart} ;

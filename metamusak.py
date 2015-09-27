@@ -18,6 +18,11 @@ def calculateTimelineOffsets(performanceTimestamps):
         performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S")
         MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") 
         freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f")
+        #annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S")
+        #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"], "%H:%M:%S")
+        #annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M") #because Echo pen only has upto one minute
+        #freehandAnnotationVideoSynctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M") #because Echo pen only has upto one minute
+        #need one of these for every clock #####
         # we declare performanceAudio to be our ground truth universal timeline
         # thus, figure out difftime between that and the others
         offsets["basetime"] = performanceAudioSynctime
@@ -91,10 +96,8 @@ def parseScore(g, performances, filebase, rdfbase) :
     for p in performances:
         perfid = p["uid"]
         perfuri = rdfbase + perfid # URI of the "root" of THIS performance
-
         # set up the source directory for the score pages
         sourcedir = filebase + "performance/" + perfid + "/musicalmanifestation/score"
-        
         # read in performance page turns
         # note regarding the CSV files produced by Richard's tool:
         # * The last page before the end of an act is NOT encoded in the same way as the others
@@ -110,6 +113,8 @@ def parseScore(g, performances, filebase, rdfbase) :
             if ix <= 2: # skip headers and sync claps
                 next
             else: # content row - fill in fields
+                #print line 
+            ##################LOOPING ISSUE HERE?? ###################################### Yes it's where the issue is FILE NAME NEEDS TO HAVE A - before the number and the regrex needs to look like ("page \w+-(\d+)")
                 m = re.match("page \w+-(\d+) ends", line[0])
                 n = re.match("act \d ends", line[0])
                 if m or n: # act ends are just page turns in richard's tool
@@ -125,7 +130,7 @@ def parseScore(g, performances, filebase, rdfbase) :
                         # strptime takes a string that looks like a timestamp and turns it into a "real" time object -- look it up ;)
                         thisPage["turntime"] = datetime.strptime(line[4], "%Y-%m-%d %H:%M:%S.%f")
                     except:
-                    #TODO for Richard: tool specifies pageturns to millisecond but act starts/ends to the second
+                    #TODO for Richard: tool specifies pageturns to millisecond but act starts/ends to the second -  except for the final pages in Walkure, which he recreated by listening to the audio again, which are also to the second.
                         thisPage["turntime"] = datetime.strptime(line[4], "%Y-%m-%d %H:%M:%S")
                     # each page is preceded in the file by a timestamped event of some sort...
                     # even the first page, as there is other timestamped info in the file (e.g. start of act)
@@ -143,22 +148,23 @@ def parseScore(g, performances, filebase, rdfbase) :
         # now work through the page image files
         for page in os.listdir(sourcedir):
             if page.endswith(".pdf"):  # only pdf files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
-                m = re.match("\w+(\d+).pdf", page)
-                pagenum = int(m.group(1))
-                if pagenum in pageturns:
+                    m = re.match("\w+-(\d+).pdf", page)
+                    pagenum = int(m.group(1))
+                    if pagenum in pageturns:
+                        #print " Str: " + str(pagenum) + ", page: " + page + ", basename " + urllib.quote(os.path.splitext(page)[0])
                     # set up score.ttl
-                    scoreTemplate = open(filebase + "metamusak/templates/score.ttl", "r")
-                    sc = scoreTemplate.read()
-                    sc = sc.format(
+                        scoreTemplate = open(filebase + "metamusak/templates/score.ttl", "r")
+                        sc = scoreTemplate.read()
+                        sc = sc.format(
                             conceptScore = uri(perfuri + "/musicalmanifestation/conceptScore"),
                             score = uri(perfuri + "/musicalmanifestation/score"),
                             pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
                             MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum)) 
-                    )
+                        )
                     # set up performancePageturn.ttl 
-                    performancePageturnTemplate = open(filebase + "metamusak/templates/performancePageturn.ttl")
-                    pt = performancePageturnTemplate.read()
-                    pt = pt.format(
+                        performancePageturnTemplate = open(filebase + "metamusak/templates/performancePageturn.ttl")
+                        pt = performancePageturnTemplate.read()
+                        pt = pt.format(
                             MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum)), 
                             pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
                             Agent6=uri(p["listenerID"]),
@@ -166,13 +172,12 @@ def parseScore(g, performances, filebase, rdfbase) :
                             MMReventIntervalDuration = lit(pageturns[pagenum]["duration"]),
                             performanceTimeLine = uri(perfuri + "/timelines/performance"),
                             performanceTimeLineMapMMRE = uri(perfuri + "/timelines/performanceMapMMRE")
-                    )
-                           
+                        )
                     # now ingest both templates    
-                    g.parse(data=sc, format="turtle")
-                    g.parse(data=pt, format="turtle")
-                else: # don't produce any RDF for pages missing performance pageturn data (e.g. end of Walkuere)
-                    warn("Warning: don't have performance page turn info for page {0}, performance {1}".format(pagenum, perfid))
+                        g.parse(data=sc, format="turtle")
+                        g.parse(data=pt, format="turtle")
+                    else: # don't produce any RDF for pages missing performance pageturn data (e.g. end of Walkuere)
+                        warn("Warning: don't have performance page turn info for page {0}, performance {1}".format(pagenum, perfid))
 
 def parseAnnotatedScore(g, performances, filebase, rdfbase):
     for p in performances:
@@ -345,7 +350,7 @@ def parsePerformanceAudio(g, performances, filebase, rdfbase):
                         performanceAudioTimeLine = uri(perfuri + "/timelines/performanceAudio"),
                         performanceTimeLine = uri(perfuri + "/timelines/performanceTimeLine"),
                         substituteAudio = uri(perfuri + "/musicalmanifestation/" + urllib.quote(os.path.splitext(audiofname)[0]) + "_sub") #TODO replace with actual substitute audio 
-                )
+                     )
                 g.parse(data=query, format="turtle")
 
 def parseSubstituteAudio(g, performances, filebase, rdfbase):                
@@ -407,7 +412,7 @@ def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
         sourcedir =  filebase + "performance/" + p["uid"] + "/annotator/"
         perfuri = rdfbase + p["uid"]
         for videofname in os.listdir(sourcedir):
-            if videofname.endswith(".MTS"): #TODO enable other formats e.g. .mov, .mp4, etc
+            if videofname.endswith(".mov"): #TODO enable other formats e.g. .mov, .mp4, etc AND MOVE .MP4s BACK INTO THAT FOLDER!!!
                 # found some annotator video!
                 mediainfo = getMediaInfo(sourcedir + videofname)
                 for key in mediainfo:
@@ -424,7 +429,32 @@ def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
                     )
                 g.parse(data=query, format="turtle")
 
-################### start TMTNF ########################
+########## DMW REVIEW sourceAnnotatorVideo ########################################################################
+def parseSourceAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
+    sourceAnnotatorVideoTemplate = open(filebase + "metamusak/templates/sourceAnnotatorVideo.ttl", "r")
+    anno = sourceAnnotatorVideoTemplate.read()
+    for p in performances:
+        sourcedir =  filebase + "performance/" + p["uid"] + "/annotator/sourceAnnotatorVideo/"
+        perfuri = rdfbase + p["uid"]
+        for videofname in os.listdir(sourcedir):
+            if videofname.endswith(".MTS"): #TODO enable other formats e.g. .mov, .mp4, etc 
+                # found some sourceAnnotatorVideo!
+                mediainfo = getMediaInfo(sourcedir + videofname)
+                for key in mediainfo:
+                    if mediainfo[key] is None:
+                        continue # skip non-values
+                query = anno.format(
+                        performance = uri(perfuri),
+                        Agent5 = uri(p["annotatorID"]),
+                        sourceAnnotatorVideo = uri(perfuri + "/annotator/sourceAnnotatorVideo/" + urllib.quote(os.path.splitext(videofname)[0])), # cut off the file suffix 
+                        sourceAnnotatorVideoIntervalStart = lit(mediainfo["date"]), # FIXME NOT THE CORRECT DATE
+                        sourceAnnotatorVideoIntervalDuration = lit(mediainfo["duration"]),
+                        sourceAnnotatorActivityTimeLine = uri(perfuri + "/timelines/sourceAnnotatorActivity"),
+                        sourceAnnotatorVideoTimeLine = uri(perfuri + "/timelines/sourceAnnotatorVideo"),####THIS NEEDS TO BE CREATED, NO?#####
+                    )
+                g.parse(data=query, format="turtle")
+
+
 def parseFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets):
     freehandAnnotationVideoTemplate = open(filebase + "/metamusak/templates/freehandAnnotationVideo.ttl", "r")
     anno = freehandAnnotationVideoTemplate.read()
@@ -486,11 +516,24 @@ def getMediaInfo(mediaFile):
 
 def mintRequiredURIs(thisPerformance):
     #TODO in the future when we work on the web interface: do something useful
-    # take human readable label
-    # hash it into a URI
+    # take content put into the .csv file
+    #if it's a URI already, run with it,
+    # if not, take the name, and hash it into a URI
     # disambiguate between people? Optionally for now, possibly just do this in the Web UI
     return thisPerformance
-
+###########
+    #userinputfile = csv.reader(open(filebase + "metamusak/" + perfid + "user_input.csv", "r"), delimiter=",", quotechar='"')
+    #for ix, line in enumerate(pageturnsfile):
+            #if ix <= 1: # skip header
+                #next
+            #else: # content row - use the content from here
+                #if str.startswith("http") #if it is a URI ## Although should this not be string matching thing because don't know how people will choose to fill in this box? ur should it be the uri() defined above? But that's dependent on < uri > and in the spreadsheet they've not used < >....... 
+                # that's great, lets take it and run with it, and write it somewhere????
+                #else: # if it is not a URI
+                    # take the human written label, and turn it into a URI by using the uid() defined above (line90)
+                        # and then then write that somewhere??
+                
+                
 
 def generateAnnotator(g, performances, filebase, rdfbase):
     for p in performances:
@@ -559,10 +602,10 @@ def generateScore(g, performances, filebase, rdfbase):
         for page in os.listdir(sourcedir):
             if page.endswith(".pdf"):  # only pdf files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
                 pagebase = os.path.splitext(page)[0]
-                m = re.match("\w+(\d+).pdf", page)
+                m = re.match("\w+-(\d+).pdf", page)
                 pagenum = int(m.group(1))
                 scoreConstruct = open(filebase + "metamusak/constructors/score.ttl", "r")
-                scoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/"+pagebase+".ttl", "w")
+                scoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/" + pagebase + ".ttl", "w")
                 sc = scoreConstruct.read()
                 sc = sc.format(
                     pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(pagebase))
@@ -571,8 +614,21 @@ def generateScore(g, performances, filebase, rdfbase):
                 scoreSidecartFile.write(scoreSidecart.serialize(format="turtle"))
                 scoreConstruct.close()
                 scoreSidecartFile.close()
-
-        
+                
+                performancePageturnConstruct = open(filebase + "metamusak/constructors/performancePageturn.ttl", "r")
+                performancePageturnSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/pageturn/" + pagebase + ".ttl", "w")
+                #performancePageturnSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/pageturn/MMRE" + str(pagenum) + ".ttl", "w")
+                pt = performancePageturnConstruct.read()
+                pt = pt.format(
+                        MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum))
+                        #MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum))
+                )
+                performancePageturnSidecart = g.query(pt)
+                performancePageturnSidecartFile.write(performancePageturnSidecart.serialize(format="turtle"))
+                performancePageturnSidecartFile.close()
+                performancePageturnConstruct.close()
+                #score1sourcedir = filebase + "performance/" + perfid + "/musicalmanifestation/score"
+                        
 def generateAnnotatedScore(g, performances, filebase, rdfbase):
     for p in performances:
         perfid = p["uid"]
@@ -620,8 +676,7 @@ def generateAnnotatorVideo(g, performances, filebase, rdfbase):
         perfuri = rdfbase + perfid
         sourcedir = filebase + "performance/" + perfid + "/annotator/"
         for videofname in os.listdir(sourcedir):
-                print videofname
-                if videofname.endswith(".MTS"):
+                if videofname.endswith(".mov"):
                     basename = urllib.quote(os.path.splitext(videofname)[0])
                     sidecartFile = open(filebase + "performance/" + perfid + "/annotator/" + basename + ".ttl", "w")
                     annotatorVideoConstruct = open(filebase + "metamusak/constructors/annotatorVideo.ttl")
@@ -633,6 +688,27 @@ def generateAnnotatorVideo(g, performances, filebase, rdfbase):
                     sidecartFile.write(sidecart.serialize(format="turtle"))
                     sidecartFile.close()
                     annotatorVideoConstruct.close()
+
+############################# DMW TO REVIEW ########################################
+def generateSourceAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
+    for p in performances:
+        perfid = p["uid"]
+        perfuri = rdfbase + perfid
+        sourcedir = filebase + "performance/" + perfid + "/annotator/sourceAnnotatorVideo/"
+        for videofname in os.listdir(sourcedir):
+#                #print videofname
+                if videofname.endswith(".MTS"):
+                    basename = urllib.quote(os.path.splitext(videofname)[0])
+                    sidecartFile = open(filebase + "performance/" + perfid + "/annotator/sourceAnnotatorVideo/" + basename + ".ttl", "w") 
+                    sourceAnnotatorVideoConstruct = open(filebase + "metamusak/constructors/sourceAnnotatorVideo.ttl")
+                    anno = sourceAnnotatorVideoConstruct.read()
+                    anno = anno.format(
+                            sourceAnnotatorVideo = uri(perfuri + "/annotator/sourceAnnotatorVideo/" + basename)
+                    )
+                    sidecart = g.query(anno)
+                    sidecartFile.write(sidecart.serialize(format="turtle"))
+                    sidecartFile.close()
+                    sourceAnnotatorVideoConstruct.close()
 
 def generateAnnotatorAudio(g, performances, filebase, rdfbase):
         for p in performances:
@@ -745,19 +821,21 @@ if __name__ == "__main__":
 #    parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
 #    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
 #    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
-    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
-##    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
+#    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
+#    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
 #    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
-    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
+#    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
+#    parseSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
 #    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
 
 ############ FINISHED PARSING, now construct the sidecart turtle and write into files #
-##    generateAnnotator(g, userinputrows, ringcycle, rdfbase)
+#    generateAnnotator(g, userinputrows, ringcycle, rdfbase)
 #    generatePerformance(g, userinputrows, ringcycle, rdfbase)
 #    generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
     generateScore(g, userinputrows, ringcycle, rdfbase)
-##    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
-    generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
+#    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
+#    generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
 #    generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
-    generateFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets)
+#    generateFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets)
+#    generateSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
 

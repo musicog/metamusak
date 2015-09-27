@@ -25,17 +25,21 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 # each performance is of only one musical work, but the musical works can be of the granularity of acts i.e. doesn't have to be the whole opera. In the future this could even be greater granularity.
 	
 {Agent2} a foaf:Agent ;
-		rdfs:label "performer" .
+		rdfs:label "performer" ;
+		rdfs:comment "This is the agent who performs the performance being observed, such as a musician, orchestra, theatre, or similar." .
 
 {Agent6} a foaf:Agent .
+# described and commented elsewhere????
 
 {Agent1} a foaf:Agent ;
-		rdfs:label "conductor" .
+		rdfs:label "conductor" ;
+		rdfs:comment "This agent is the conductor of a performance." .
 
 {musicalWork} a mo:MusicalWork ;
 			  rdfs:label {workTitle} ;
 			  mo:arranged_in _:arrangement  ;  
-              mo:composed_in _:composition . 
+              mo:composed_in _:composition ;
+			  rdfs:comment "The MusicalWork is a conceptual form of a given piece or composition, of which every recording and performance is a specific manifestation." .
 
 
 _:composition a mo:Composition ;
@@ -43,7 +47,8 @@ _:composition a mo:Composition ;
 #could have more than one composer
 
 {Agent3} a foaf:Agent ;
-		 rdfs:label "composer" .
+		 rdfs:label "composer" ;
+		 rdfs:comment "This is the person or persons who composed the performance." .
 
 _:arrangement a mo:Arrangement ; 
 			  event:agent {Agent4} ;
