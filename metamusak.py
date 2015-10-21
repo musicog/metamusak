@@ -149,7 +149,7 @@ def parseScore(g, performances, filebase, rdfbase) :
         for page in os.listdir(sourcedir):
             if page.endswith(".pdf"):  # only pdf files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
                     #m = re.match("\w+-(\d+).pdf", page) ##The original from David
-                    #print sourcedir + "/" + page
+                    print sourcedir + "/" + page
                     m = re.search("(\w+)_originalscore_page(\d+).pdf", page)
                     #pagenum = int(m.group(1)) #The original from David
                     pagenum = int(m.group(2))
@@ -759,7 +759,7 @@ def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets
 
 if __name__ == "__main__": 
     # Set up physical paths, i.e. where things live on the hard drive
-    ringcycle = "/Volumes/Terhi OeRC/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
+    ringcycle = "/Volumes/Terhin_oma_eksternali/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
     perfbase = ringcycle + "performance/" # the performance folder
     # rdf path, i.e. the prefix of every URI generated
     rdfbase = "http://performance.data.t-mus.org/performance/" 
@@ -822,25 +822,25 @@ if __name__ == "__main__":
 
 ############ START PARSING, i.e. filling templates and reading into graph #############
     parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
-#    parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
-#    parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
-#    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
-#    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
-#    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
-#    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
-#    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
-#    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
-#    parseSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
+    parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
+    parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
+    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
+    parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
+    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
+    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
+    parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
+    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
+    parseSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
 #    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
 
 ############ FINISHED PARSING, now construct the sidecart turtle and write into files #
-#    generateAnnotator(g, userinputrows, ringcycle, rdfbase)
-#    generatePerformance(g, userinputrows, ringcycle, rdfbase)
-#    generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
+    generateAnnotator(g, userinputrows, ringcycle, rdfbase)
+    generatePerformance(g, userinputrows, ringcycle, rdfbase)
+    generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
     generateScore(g, userinputrows, ringcycle, rdfbase)
-#    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
-#    generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
-#    generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
-#    generateFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets)
-#    generateSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
+    generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
+    generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
+    generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
+    generateFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets)
+    generateSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
 
