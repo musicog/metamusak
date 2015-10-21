@@ -15,17 +15,17 @@ def calculateTimelineOffsets(performanceTimestamps):
     for p in performanceTimestamps:
         offsets = dict()
         offsets["perfid"] = p["uid"]
-        performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S")
-        MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") 
-        freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f")
-        #annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S")
-        #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"], "%H:%M:%S")
-        #annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M") #because Echo pen only has upto one minute
-        #freehandAnnotationVideoSynctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M") #because Echo pen only has upto one minute
+        performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S") #granularity to 1 second
+        MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") #Musical Manifestation Realisation Event Sync Time, granularity to 1 second
+        freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f") #annotations made on the iPad
+        #annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S") #video of annotator making annotations
+        #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"], "%H:%M:%S") 
+        #annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M") #Echo digital pen only has upto one minute in granularity - dictated notes.
+        #freehandAnnotationVideoSynctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M") #because Echo digital pen only has upto one minute
         #need one of these for every clock #####
-        # we declare performanceAudio to be our ground truth universal timeline
-        # thus, figure out difftime between that and the others
-        offsets["basetime"] = performanceAudioSynctime
+      
+        offsets["basetime"] = performanceAudioSynctime         # we declare performanceAudio to be our ground truth universal timeline
+        # thus, map different temporal offsets between that and the others
         freehandAnnotationVideo = offsets["basetime"] #FIXME figure out what to do here: 
         #For each {freehandAnnotationVideo}:
             #Calculate offset between performance time and annotator video time:
@@ -123,7 +123,7 @@ def parseScore(g, performances, filebase, rdfbase) :
                     if m: # note -- m is a complex object representing the outcome of the regex match, not just the \d+ captured
                         thisPage["pageNum"] =  int(m.group(1)) # m.group(1) is the \d+ that was captured, but by default its as a string, so we use int() to turn it into a number
                     else: 
-                        thisPage["pageNum"] = prevPage+1
+                        thisPage["pageNum"] = prevPage+1 
                     thisPage["opera"] = line[1]
                     thisPage["act"] = line[2]
                     try:
@@ -137,8 +137,8 @@ def parseScore(g, performances, filebase, rdfbase) :
                     # we can rely on this when calculating MMRE durations
                     thisPage["starttime"] = prevTime
                     thisPage["duration"] = thisPage["turntime"] - thisPage["starttime"]  # i.e. page end minus page start = page duration
-                    pageturns[thisPage["pageNum"]] = thisPage
-                    prevPage = thisPage["pageNum"] # track for when we reach an act ends event
+                    pageturns[thisPage["pageNum"]] = thisPage 
+                    prevPage = thisPage["pageNum"] # track for when we reach an act ends event 
                 # regardless of event type, record the timestamp for MMRE duration calculation
                 try: 
                     prevTime = datetime.strptime(line[4], "%Y-%m-%d %H:%M:%S.%f")
@@ -148,8 +148,11 @@ def parseScore(g, performances, filebase, rdfbase) :
         # now work through the page image files
         for page in os.listdir(sourcedir):
             if page.endswith(".pdf"):  # only pdf files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
-                    m = re.match("\w+-(\d+).pdf", page)
-                    pagenum = int(m.group(1))
+                    #m = re.match("\w+-(\d+).pdf", page) ##The original from David
+                    #print sourcedir + "/" + page
+                    m = re.search("(\w+)_originalscore_page(\d+).pdf", page)
+                    #pagenum = int(m.group(1)) #The original from David
+                    pagenum = int(m.group(2))
                     if pagenum in pageturns:
                         #print " Str: " + str(pagenum) + ", page: " + page + ", basename " + urllib.quote(os.path.splitext(page)[0])
                     # set up score.ttl
@@ -602,8 +605,10 @@ def generateScore(g, performances, filebase, rdfbase):
         for page in os.listdir(sourcedir):
             if page.endswith(".pdf"):  # only pdf files - TODO make this accept other conceivable suffixes, e.g. JPG, jpeg, JPEG, png? etc
                 pagebase = os.path.splitext(page)[0]
-                m = re.match("\w+-(\d+).pdf", page)
-                pagenum = int(m.group(1))
+                #m = re.match("\w+-(\d+).pdf", page)
+                m = re.search("(\w+)_originalscore_page(\d+).pdf", page)
+                #pagenum = int(m.group(1))
+                pagenum = int(m.group(2))
                 scoreConstruct = open(filebase + "metamusak/constructors/score.ttl", "r")
                 scoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/" + pagebase + ".ttl", "w")
                 sc = scoreConstruct.read()
@@ -754,7 +759,7 @@ def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets
 
 if __name__ == "__main__": 
     # Set up physical paths, i.e. where things live on the hard drive
-    ringcycle = "/Volumes/Terhin_oma_eksternali/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
+    ringcycle = "/Volumes/Terhi OeRC/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
     perfbase = ringcycle + "performance/" # the performance folder
     # rdf path, i.e. the prefix of every URI generated
     rdfbase = "http://performance.data.t-mus.org/performance/" 
