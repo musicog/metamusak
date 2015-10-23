@@ -21,11 +21,11 @@ prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 {annotatorAudioTimeLine} a tl:AbstractTimeLine .
 {annotatorVideoTimeLine} a tl:AbstractTimeLine .
 {freehandAnnotationLayer1TimeLine} a tl:AbstractTimeLine .
-{freehandAnnotationVideoTimeLine} a tl:AbstractTimeLine .
+#[freehandAnnotationVideoTimeLine] a tl:AbstractTimeLine .
 
 {annotatorAudio_offset} a xsd:duration.
 {annotatorVideo_offset} a xsd:duration.
-{freehandAnnotationVideo_offset} a xsd:duration.
+#[freehandAnnotationVideo_offset] a xsd:duration.
 {freehandAnnotationLayer1_offset} a xsd:duration.
 
 

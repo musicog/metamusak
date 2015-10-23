@@ -21,7 +21,7 @@ def calculateTimelineOffsets(performanceTimestamps):
         annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S") #video of annotator making annotations
         #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"]) "%H:%M:%S") #FIXME these details are not in the .csv!!!
         annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M:%S") #Echo digital pen only has upto one minute in granularity - dictated notes. 
-        freehandAnnotationVideo_3_Synctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
+        #freehandAnnotationVideo_3_Synctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
       
         offsets["basetime"] = performanceAudioSynctime      # we declare performanceAudio to be our ground truth universal timeline # thus, map different temporal offsets between that and the others
         offsets["performanceAudio"] = 0;
@@ -57,13 +57,13 @@ def calculateTimelineOffsets(performanceTimestamps):
         else:
             offsets["freehandAnnotationLayer1"] = 0
         
-        if p["freehandAnnotationVideo"]: #FIXME 
-            freehandAnnotationVideo_1_Synctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
-            freehandAnnotationVideo_2_Synctime = freehandAnnotationVideo_1_Synctime + pencastTimestamps
-            freehandAnnotationVideo_3_Synctime = freehandAnnotationVideo_2_Synctime - writingStarttime
-            offsets["freehandAnnotationVideo"] = getOffsetSeconds(freehandAnnotationVideo_3_Synctime, offsets["basetime"])
-        else:
-            offsets["freehandAnnotationVideo"] = 0
+       # if p["freehandAnnotationVideo"]: #FIXME 
+    #        freehandAnnotationVideo_1_Synctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
+     #       freehandAnnotationVideo_2_Synctime = freehandAnnotationVideo_1_Synctime + pencastTimestamps
+      #      freehandAnnotationVideo_3_Synctime = freehandAnnotationVideo_2_Synctime - writingStarttime
+      #      offsets["freehandAnnotationVideo"] = getOffsetSeconds(freehandAnnotationVideo_3_Synctime, offsets["basetime"])
+      #  else:
+      #      offsets["freehandAnnotationVideo"] = 0
         
         if p["MMRE"]:
             MMRESynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["MMRE"], "%d/%m/%Y %H:%M:%S"))
@@ -320,12 +320,11 @@ def parseAnnotator(g, performances, filebase, rdfbase, offsets):
                 annotatorTimeLineMapAnnotatorVideo = uri(p["performanceID"] + "/timelines/annotatorMapAnnotatorVideo"),
                 annotatorTimeLineMapFreehandAnnotationLayer1 = uri(p["performanceID"] + "/timelines/annotatorTimeLineMapFreehandAnnotationLayer1"),
                 annotatorTimeLineMapFreehandAnnotationVideo = uri(p["performanceID"] + "/timeline/annotatorTimeLineMapFreehandAnnotationVideo"),
-                freehandAnnotationVideoTimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationVideo"),
+                #freehandAnnotationVideoTimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationVideo"),
                 freehandAnnotationLayer1TimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationLayer1"),
                 freehandAnnotationLayer1_offset = lit(offsets[p["uid"]]["freehandAnnotationLayer1"]),
-                freehandAnnotationVideo_offset = lit(offsets[p["uid"]]["freehandAnnotationVideo"])
+                #freehandAnnotationVideo_offset = lit(offsets[p["uid"]]["freehandAnnotationVideo"])
         )
-        
         g.parse(data=anno, format="turtle")
         annotatorTemplate.close()
 
@@ -835,7 +834,8 @@ if __name__ == "__main__":
 
 ############ NOW FINISHED READING INPUT ###############################################
 
-    offsets = calculateTimelineOffsets(syncTimestamps) # figure out the timeline offset logic
+    #offsets = calculateTimelineOffsets(syncTimestamps) # figure out the timeline offset logic
+    offsets = calculateTimelineOffsets(pencastOffsets)
     g = Graph() # create the grandmaster graph
 
 ############ START PARSING, i.e. filling templates and reading into graph #############
@@ -849,7 +849,7 @@ if __name__ == "__main__":
     parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
     parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
     parseSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
-    #parseTimelines #timelines.ttl
+    parseTimelines #timelines.ttl
 #    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
 
 ############ FINISHED PARSING, now construct the sidecart turtle and write into files #
