@@ -20,6 +20,6 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 _:sourceAnnotatorVideoInterval a tl:Interval ;
 						tl:start {sourceAnnotatorVideoIntervalStart} ;
 						tl:duration {sourceAnnotatorVideoIntervalDuration} ;
-						tl:timeline {sourceAnnotatorActivityTimeLine} ;
+						tl:timeline {annotatorActivityTimeLine} ;
 						tl:timeline {sourceAnnotatorVideoTimeLine} .
 					 

@@ -17,6 +17,11 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 {MasterTimeLine} a tl:PhysicalTimeLine .
 
 {annotatorActivityTimeLine} a tl:AbstractTimeLine .
+{annotatorAudioTimeLine} a tl:AbstractTimeLine .
+{annotatorVideoTimeLine} a tl:AbstractTimeLine .
+{freehandAnnotationLayer1TimeLine} a tl:AbstractTimeLine .
+{freehandAnnotationVideoTimeLine} a tl:AbstractTimeLine .
+
 
 {annotatorTimeLineMapAnnotatorAudio} a tl:ShiftMap ;
 							tl:domainTimeLine {MasterTimeLine} ;
@@ -32,10 +37,11 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 							tl:domainTimeLine {MasterTimeLine} ;
 							tl:rangeTimeLine {freehandAnnotationLayer1TimeLine} ;
 							tl:delay {freehandAnnotationLayer1_offset} .
-					
+							
 {annotatorTimeLineMapFreehandAnnotationVideo} a tl:ShiftMap ;
 							tl:domainTimeLine {MasterTimeLine} ;
 							tl:rangeTimeLine {freehandAnnotationVideoTimeLine} ;
-							tl:delay {freehandAnnotationVideo_offset} .			
+							tl:delay {freehandAnnotationVideo_offset} .	
+		
 					
 #we've mapped each timeline pair (domain and range) as belonging to a different ShiftMap. 				

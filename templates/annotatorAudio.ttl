@@ -12,7 +12,7 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 
 #This is the dictated annotations.
 
-{performance}	mo:recorded_as {annotatorAudioBody} . #FIXME remove for construct
+#{performance}	mo:recorded_as {annotatorAudioBody} . #FIXME remove for construct
 
 {annotatorAudio} a oa:Annotation ;
 				  oa:hasTarget {performance} ;

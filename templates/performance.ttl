@@ -10,7 +10,6 @@ prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
 {performance} a mo:Performance ;		
-#		mo:recorded_as [digitalSignal] ; #FIXME put back here for construct
 		mo:performer {Agent2} ;				
 		rdfs:comment "This is a specific performance of the Work. It has a specific date when it occured, and who did it at that time." ;
 		mo:conductor {Agent1} ;

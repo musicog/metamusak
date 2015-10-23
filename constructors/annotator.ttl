@@ -18,6 +18,11 @@ CONSTRUCT {{
     ?annotatorTimeLineMapAnnotatorVideo ?atlmavs ?atlmavo.
     ?annotatorTimeLineMapFreehandAnnotationLayer1 ?atlmfal1s ?atlmfal1o.
     ?annotatorTimeLineMapFreehandAnnotationVideo ?atlmfavs ?atlmfavo.
+	?annotatorAudioTimeLine ?aATLs ?aATLo .
+	?annotatorVideoTimeLine ?aVTLs ?aVTLo .
+	?freehandAnnotationLayer1TimeLine ?fAL1TLs ?fAL1TLo .
+	?freehandAnnotationVideoTimeLine ?fAVTLs  ?fAVTLo .
+	
 }} WHERE {{ 
     BIND({Agent5} as ?Agent5) .
     BIND({MasterTimeLine} as ?MasterTimeLine).
@@ -26,6 +31,10 @@ CONSTRUCT {{
     BIND({annotatorTimeLineMapAnnotatorVideo} as ?annotatorTimeLineMapAnnotatorVideo).
     BIND({annotatorTimeLineMapFreehandAnnotationLayer1} as ?annotatorTimeLineMapFreehandAnnotationLayer1).
     BIND({annotatorTimeLineMapFreehandAnnotationVideo} as ?annotatorTimeLineMapFreehandAnnotationVideo).
+	BIND({annotatorAudioTimeLine} as ?annotatorAudioTimeLine) .
+	BIND({annotatorVideoTimeLine} as ?annotatorVideoTimeLine) .
+	BIND({freehandAnnotationLayer1TimeLine} as ?freehandAnnotationLayer1TimeLine) .
+	BIND({freehandAnnotationVideoTimeLine} as ?freehandAnnotationVideoTimeLine) .
 
     ?Agent5 ?a5s ?a5o.
     ?MasterTimeLine ?mtls ?mtlo.
@@ -34,5 +43,10 @@ CONSTRUCT {{
     ?annotatorTimeLineMapAnnotatorVideo ?atlmavs ?atlmavo.
     ?annotatorTimeLineMapFreehandAnnotationLayer1 ?atlmfal1s ?atlmfal1o.
     ?annotatorTimeLineMapFreehandAnnotationVideo ?atlmfavs ?atlmfavo.
+	?annotatorAudioTimeLine ?aATLs ?aATLo .
+	?annotatorVideoTimeLine ?aVTLs ?aVTLo .
+	?freehandAnnotationLayer1TimeLine ?fAL1TLs ?fAL1TLo .
+	?freehandAnnotationVideoTimeLine ?fAVTLs  ?fAVTLo .
+	
 }}	
 #we've mapped each timeline pair (domain and range) as belonging to a different ShiftMap. 				
