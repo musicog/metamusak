@@ -1,0 +1,27 @@
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+
+
+
+CONSTRUCT{{
+
+?performanceAudioTimeLine ?pATLs ?pATLo .
+?sourceAnnotatorVideoTimeLine ?sAVTLs ?sAVTLo .
+?MMRETimeLine ?MTLs ?MTLo .
+
+
+}}
+WHERE{{
+
+
+BIND({performanceAudioTimeLine} as ?performanceAudioTimeLine) .
+BIND({sourceAnnotatorVideoTimeLine} as ?sourceAnnotatorVideoTimeLine) .
+BIND({MMRETimeLine} as ?MMRETimeLine) .
+
+
+
+?performanceAudioTimeLine ?pATLs ?pATLo .
+?sourceAnnotatorVideoTimeLine ?sAVTLs ?sAVTLo .
+?MMRETimeLine ?MTLs ?MTLo .
+
+
+}}
