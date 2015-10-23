@@ -19,9 +19,9 @@ def calculateTimelineOffsets(performanceTimestamps):
         MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") #Musical Manifestation Realisation Event Sync Time, granularity to 1 second
         freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f") #annotations made on the iPad
         annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S") #video of annotator making annotations
-        #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"], "%H:%M:%S") #FIXME these details are not in the .csv!!!
+        #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"]) "%H:%M:%S") #FIXME these details are not in the .csv!!!
         annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M:%S") #Echo digital pen only has upto one minute in granularity - dictated notes. 
-        freehandAnnotationVideoSynctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
+        freehandAnnotationVideo_3_Synctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
       
         offsets["basetime"] = performanceAudioSynctime      # we declare performanceAudio to be our ground truth universal timeline # thus, map different temporal offsets between that and the others
         offsets["performanceAudio"] = 0;
@@ -57,9 +57,11 @@ def calculateTimelineOffsets(performanceTimestamps):
         else:
             offsets["freehandAnnotationLayer1"] = 0
         
-        if p["freehandAnnotationVideo"]: #FIXME A fantasy of what it would look like if freehandAnnotationVideo was easy and straightforward.
-            freehandAnnotationVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S"))
-            offsets["freehandAnnotationVideo"] = getOffsetSeconds(freehandAnnotationVideo, offsets["basetime"])
+        if p["freehandAnnotationVideo"]: #FIXME 
+            freehandAnnotationVideo_1_Synctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
+            freehandAnnotationVideo_2_Synctime = freehandAnnotationVideo_1_Synctime + pencastTimestamps
+            freehandAnnotationVideo_3_Synctime = freehandAnnotationVideo_2_Synctime - writingStarttime
+            offsets["freehandAnnotationVideo"] = getOffsetSeconds(freehandAnnotationVideo_3_Synctime, offsets["basetime"])
         else:
             offsets["freehandAnnotationVideo"] = 0
         
@@ -512,23 +514,27 @@ def getMediaInfo(mediaFile):
     return thisfile
 
 def mintRequiredURIs(thisPerformance):
-    #TODO in the future when we work on the web interface: do something useful
-    # take content put into the .csv file
-    #if it's a URI already, run with it,
-    # if not, take the name, and hash it into a URI
-    # disambiguate between people? Optionally for now, possibly just do this in the Web UI
-#    userinputfile = csv.reader(open(filebase + "metamusak/" + perfid + "user_input.csv", "r"), delimiter=",", quotechar='"')
-#    for ix, line in enumerate(pageturnsfile):
-#            if ix <= 1: # skip header
-#                next
-#            else: # content row - use the content from here
-#                if uri #or should it be something like this? #str.startswith("http")  uri is defined above
-#                #if it is a URI, that's great, lets take it and run with it
-#                else: # if it is a string
-                    
-                    # take the human written label, replace it with a URI by using the uid() defined above (line90)
-                        # keep names as labels i.e. add ' rdfs:label " " '
-                        #doforall (annotator, listener, arranger, etc)
+    #userinputfile = csv.reader(open(filebase + "metamusak/" + perfid + "user_input.csv", "r"), delimiter=",", quotechar='"')
+    #for ix, line in enumerate(pageturnsfile):
+    #        if ix <= 1: # skip header
+    #            next
+    #        else: # content row - use the content from here
+    #            if userinputname != uri:
+    #                personidentifier = dict()
+    #                   personidentifier["id"] = 
+    #                   personidentifier["label"] = str()
+    #           else:
+    
+    
+                    # take the human written label, 
+                    # replace it with a URI by using the uid()
+                    # keep names as labels i.e. add ' rdfs:label " " '
+                    #doforall (annotator, listener, arranger, etc)
+                        #TODO in the future when we work on the web interface: do something useful
+                        # take content put into the .csv file
+                        #if it's a URI already, run with it,
+                        # if not, take the name, and hash it into a URI
+                        # disambiguate between people? Optionally for now, possibly just do this in the Web UI
     return thisPerformance 
               
 def generateAnnotator(g, performances, filebase, rdfbase):
@@ -743,13 +749,20 @@ def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets
                     sidecartFile = open(filebase + "performance/" + perfid + "/annotation" + "/freehandAnnotationVideo/" + basename + ".ttl", "w")
                     anno = freehandAnnotationVideoConstruct.read()
                     anno = anno.format(
-                            freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + basename)
+                            performance = uri(perfuri),
+                            Agent5 = uri(p["annotatorID"]),
+                            freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(os.path.splitext(videofname)[0])),
+                            freehandAnnotationVideoBody = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(videofname)),
+                            freehandAnnotationVideoBodyIntervalStart = lit(mediainfo["date"]),
+                            freehandAnnotationVideoBodyIntervalDuration = lit(mediainfo["duration"]),
+                            annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
+                            freehandAnnotationVideoTimeLine = uri(perfuri + "/timelines/freehandAnnotationVideo"),
                     )
                     sidecart = g.query(anno)
                     sidecartFile.write(sidecart.serialize(format="turtle"))
                     sidecartFile.close()
                     freehandAnnotationVideoConstruct.close()
-
+  
 
 if __name__ == "__main__": 
     # Set up physical paths, i.e. where things live on the hard drive
