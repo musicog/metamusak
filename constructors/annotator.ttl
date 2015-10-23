@@ -22,6 +22,10 @@ CONSTRUCT {{
 	?annotatorVideoTimeLine ?aVTLs ?aVTLo .
 	?freehandAnnotationLayer1TimeLine ?fAL1TLs ?fAL1TLo .
 	?freehandAnnotationVideoTimeLine ?fAVTLs  ?fAVTLo .
+	?annotatorAudio_offset ?aAos ?aAoo .
+	?annotatorVideo_offset ?aVos ?aVoo .
+	?freehandAnnotationVideo_offset ?fAVos ?fAVoo.
+	?freehandAnnotationLayer1_offset ?fAL1os ?fAL1oo .
 	
 }} WHERE {{ 
     BIND({Agent5} as ?Agent5) .
@@ -35,6 +39,10 @@ CONSTRUCT {{
 	BIND({annotatorVideoTimeLine} as ?annotatorVideoTimeLine) .
 	BIND({freehandAnnotationLayer1TimeLine} as ?freehandAnnotationLayer1TimeLine) .
 	BIND({freehandAnnotationVideoTimeLine} as ?freehandAnnotationVideoTimeLine) .
+	BIND({annotatorAudio_offset} as ?annotatorAudio_offset).
+	BIND({annotatorVideo_offset} as ?annotatorVideo_offset).
+	BIND({freehandAnnotationVideo_offset} as ?freehandAnnotationVideo_offset).
+	BIND({freehandAnnotationLayer1_offset} as ?freehandAnnotationLayer1_offset).
 
     ?Agent5 ?a5s ?a5o.
     ?MasterTimeLine ?mtls ?mtlo.
@@ -47,6 +55,10 @@ CONSTRUCT {{
 	?annotatorVideoTimeLine ?aVTLs ?aVTLo .
 	?freehandAnnotationLayer1TimeLine ?fAL1TLs ?fAL1TLo .
 	?freehandAnnotationVideoTimeLine ?fAVTLs  ?fAVTLo .
+	?annotatorAudio_offset ?aAos ?aAoo .
+	?annotatorVideo_offset ?aVos ?aVoo .
+	?freehandAnnotationVideo_offset ?fAVos ?fAVoo.
+	?freehandAnnotationLayer1_offset ?fAL1os ?fAL1oo .
 	
 }}	
 #we've mapped each timeline pair (domain and range) as belonging to a different ShiftMap. 				

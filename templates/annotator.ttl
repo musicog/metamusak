@@ -8,6 +8,7 @@ prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 prefix oa: <http://www.w3.org/ns/oa#> 
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
 {Agent5} a foaf:Agent ;
 		rdfs:label "annotator" ;
@@ -21,6 +22,11 @@ prefix prov: <http://www.w3.org/TR/prov-o/>
 {annotatorVideoTimeLine} a tl:AbstractTimeLine .
 {freehandAnnotationLayer1TimeLine} a tl:AbstractTimeLine .
 {freehandAnnotationVideoTimeLine} a tl:AbstractTimeLine .
+
+{annotatorAudio_offset} a xsd:duration.
+{annotatorVideo_offset} a xsd:duration.
+{freehandAnnotationVideo_offset} a xsd:duration.
+{freehandAnnotationLayer1_offset} a xsd:duration.
 
 
 {annotatorTimeLineMapAnnotatorAudio} a tl:ShiftMap ;
