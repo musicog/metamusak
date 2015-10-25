@@ -11,52 +11,52 @@ import re
 import os
 
 
-#def calculateTimelineOffsets(performanceTimestamps, pencastOffsets):
-#    performanceOffsets = dict()
-#    for p in performanceTimestamps:
-#        offsets = dict()
-#        offsets["perfid"] = p["uid"]
-#        performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S") #granularity to 1 second
-#        MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") #Musical Manifestation Realisation Event Sync Time, granularity to 1 second
-#        freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f") #annotations made on the iPad
-#        annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S") #video of annotator making annotations
+def calculateTimelineOffsets(performanceTimestamps, pencastOffsets):
+    performanceOffsets = dict()
+    for p in performanceTimestamps:
+        offsets = dict()
+        offsets["perfid"] = p["uid"]
+        performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S") #granularity to 1 second
+        MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") #Musical Manifestation Realisation Event Sync Time, granularity to 1 second
+        freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f") #annotations made on the iPad
+        annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S") #video of annotator making annotations
         #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"]) "%H:%M:%S") #FIXME these details are not in the .csv!!!
-#        annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M:%S") #Echo digital pen only has upto one minute in granularity - dictated notes. 
+        annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M:%S") #Echo digital pen only has upto one minute in granularity - dictated notes. 
         #freehandAnnotationVideo_3_Synctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
       
-#        offsets["basetime"] = performanceAudioSynctime      # we declare performanceAudio to be our ground truth universal timeline # thus, map different temporal offsets between that and the others
-#        offsets["performanceAudio"] = 0;
+        offsets["basetime"] = performanceAudioSynctime      # we declare performanceAudio to be our ground truth universal timeline # thus, map different temporal offsets between that and the others
+        offsets["performanceAudio"] = 0;
      
-#        if p["annotatorAudio"]: # we only have it for Rheingold
-#            offsets["annotatorAudio"] = generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S")) #Digitpen only specific to a minute
-#            offsets["annotatorAudio"] = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S"))
-#        else:
-#            offsets["annotatorAudio"] = "None" #this one says "None" the others are 0
+        if p["annotatorAudio"]: # we only have it for Rheingold
+            offsets["annotatorAudio"] = generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S")) #Digitpen only specific to a minute
+            offsets["annotatorAudio"] = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S"))
+        else:
+            offsets["annotatorAudio"] = "None" #this one says "None" the others are 0
 
-#        if p["annotatorVideo"]: 
+        if p["annotatorVideo"]: 
             # therefore, subtract annotatorVideo syncTimestamp (as timedelta) from basetime to get annotatorVideo time
             # EXCEPT for WALKURE, where we need to add 52seconds 
-#            perfid = p["uid"]
-#            if perfid != "gvX3hrDeTEA": #for all except Walkuere
-#                annotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
-#                offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
-#            else:
-#                annotatorVideoSynctime = offsets["basetime"] + generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) #always ADD timeDelta for Walkuere
-#                offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
-#        else:  
-#            offsets["annotatorVideo"] = 0
+            perfid = p["uid"]
+            if perfid != "gvX3hrDeTEA": #for all except Walkuere
+                annotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
+                offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
+            else:
+                annotatorVideoSynctime = offsets["basetime"] + generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) #always ADD timeDelta for Walkuere
+                offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
+        else:  
+            offsets["annotatorVideo"] = 0
                    
-        #if p["sourceAnnotatorVideo"] :
-         #   sourceAnnotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["sourceAnnotatorVideo"], "%H:%M:%S"))
-          #  offsets["sourceAnnotatorVideo"] = getOffsetSeconds(sourceAnnotatorVideoSynctime, offsets ["basetime"])
-        #else:
-          #  offsets["sourceAnnotatorVideo"] = 0
+        if p["sourceAnnotatorVideo"] :
+            sourceAnnotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["sourceAnnotatorVideo"], "%H:%M:%S"))
+            offsets["sourceAnnotatorVideo"] = getOffsetSeconds(sourceAnnotatorVideoSynctime, offsets ["basetime"])
+        else:
+            offsets["sourceAnnotatorVideo"] = 0
 
-#        if p["freehandAnnotationLayer1"] :
-#            freehandAnnotationLayer1 = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f")) # fhAL1St also has microseconds..."%d/%m/%Y %H:%M:%S.%f"
-#            offsets["freehandAnnotationLayer1"] = getOffsetSeconds(freehandAnnotationLayer1Synctime, offsets["basetime"]) 
-#        else:
-#            offsets["freehandAnnotationLayer1"] = 0
+        if p["freehandAnnotationLayer1"] :
+            freehandAnnotationLayer1 = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f")) # fhAL1St also has microseconds..."%d/%m/%Y %H:%M:%S.%f"
+            offsets["freehandAnnotationLayer1"] = getOffsetSeconds(freehandAnnotationLayer1Synctime, offsets["basetime"]) 
+        else:
+            offsets["freehandAnnotationLayer1"] = 0
         
        # if p["freehandAnnotationVideo"]: #FIXME 
     #        freehandAnnotationVideo_1_Synctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
@@ -66,14 +66,14 @@ import os
       #  else:
       #      offsets["freehandAnnotationVideo"] = 0
         
-#        if p["MMRE"]:
-#            MMRESynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["MMRE"], "%d/%m/%Y %H:%M:%S"))
-#            offsets["MMRE"] = getOffsetSeconds(MMRESynctime, offsets["basetime"])
-#        else:
-#            offsets["MMRE"] = 0
+        if p["MMRE"]:
+            MMRESynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["MMRE"], "%d/%m/%Y %H:%M:%S"))
+            offsets["MMRE"] = getOffsetSeconds(MMRESynctime, offsets["basetime"])
+        else:
+            offsets["MMRE"] = 0
             
-#        performanceOffsets[offsets["perfid"]] = offsets
-#    return performanceOffsets
+        performanceOffsets[offsets["perfid"]] = offsets
+    return performanceOffsets
 
 #####################################
 
@@ -518,16 +518,15 @@ def getMediaInfo(mediaFile):
     return thisfile
 
 def mintRequiredURIs(thisPerformance):
-    #userinputfile = csv.reader(open(filebase + "metamusak/" + perfid + "user_input.csv", "r"), delimiter=",", quotechar='"')
-    #for ix, line in enumerate(pageturnsfile):
-    #        if ix <= 1: # skip header
-    #            next
-    #        else: # content row - use the content from here
-    #            if userinputname != uri:
-    #                personidentifier = dict()
-    #                   personidentifier["id"] = 
-    #                   personidentifier["label"] = str()
-    #           else:
+#    userinputfile = csv.reader(open(filebase + "metamusak/" + perfid + "user_input.csv", "r"), delimiter=",", quotechar='"')
+#    mintedURI = dict()
+#    for ix, line in enumerate(pageturnsfile):
+#            if ix <= 1: # skip header
+#                next
+#            else: # content row - use the content from here
+#                if userinputname.startswith("http")
+#                else:
+                    
     
     
                     # take the human written label, 
