@@ -10,40 +10,41 @@ import csv
 import re
 import os
 
-def calculateTimelineOffsets(performanceTimestamps):
-    performanceOffsets = dict()
-    for p in performanceTimestamps:
-        offsets = dict()
-        offsets["perfid"] = p["uid"]
-        performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S") #granularity to 1 second
-        MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") #Musical Manifestation Realisation Event Sync Time, granularity to 1 second
-        freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f") #annotations made on the iPad
-        annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S") #video of annotator making annotations
+
+#def calculateTimelineOffsets(performanceTimestamps, pencastOffsets):
+#    performanceOffsets = dict()
+#    for p in performanceTimestamps:
+#        offsets = dict()
+#        offsets["perfid"] = p["uid"]
+#        performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S") #granularity to 1 second
+#        MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") #Musical Manifestation Realisation Event Sync Time, granularity to 1 second
+#        freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f") #annotations made on the iPad
+#        annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S") #video of annotator making annotations
         #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"]) "%H:%M:%S") #FIXME these details are not in the .csv!!!
-        annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M:%S") #Echo digital pen only has upto one minute in granularity - dictated notes. 
+#        annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M:%S") #Echo digital pen only has upto one minute in granularity - dictated notes. 
         #freehandAnnotationVideo_3_Synctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
       
-        offsets["basetime"] = performanceAudioSynctime      # we declare performanceAudio to be our ground truth universal timeline # thus, map different temporal offsets between that and the others
-        offsets["performanceAudio"] = 0;
+#        offsets["basetime"] = performanceAudioSynctime      # we declare performanceAudio to be our ground truth universal timeline # thus, map different temporal offsets between that and the others
+#        offsets["performanceAudio"] = 0;
      
-        if p["annotatorAudio"]: # we only have it for Rheingold
-            offsets["annotatorAudio"] = generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S")) #Digitpen only specific to a minute
-            offsets["annotatorAudio"] = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S"))
-        else:
-            offsets["annotatorAudio"] = "None" #this one says "None" the others are 0
+#        if p["annotatorAudio"]: # we only have it for Rheingold
+#            offsets["annotatorAudio"] = generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S")) #Digitpen only specific to a minute
+#            offsets["annotatorAudio"] = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S"))
+#        else:
+#            offsets["annotatorAudio"] = "None" #this one says "None" the others are 0
 
-        if p["annotatorVideo"]: 
+#        if p["annotatorVideo"]: 
             # therefore, subtract annotatorVideo syncTimestamp (as timedelta) from basetime to get annotatorVideo time
             # EXCEPT for WALKURE, where we need to add 52seconds 
-            perfid = p["uid"]
-            if perfid != "gvX3hrDeTEA": #for all except Walkuere
-                annotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
-                offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
-            else:
-                annotatorVideoSynctime = offsets["basetime"] + generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) #always ADD timeDelta for Walkuere
-                offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
-        else:  
-            offsets["annotatorVideo"] = 0
+#            perfid = p["uid"]
+#            if perfid != "gvX3hrDeTEA": #for all except Walkuere
+#                annotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
+#                offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
+#            else:
+#                annotatorVideoSynctime = offsets["basetime"] + generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) #always ADD timeDelta for Walkuere
+#                offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
+#        else:  
+#            offsets["annotatorVideo"] = 0
                    
         #if p["sourceAnnotatorVideo"] :
          #   sourceAnnotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["sourceAnnotatorVideo"], "%H:%M:%S"))
@@ -51,11 +52,11 @@ def calculateTimelineOffsets(performanceTimestamps):
         #else:
           #  offsets["sourceAnnotatorVideo"] = 0
 
-        if p["freehandAnnotationLayer1"] :
-            freehandAnnotationLayer1 = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f")) # fhAL1St also has microseconds..."%d/%m/%Y %H:%M:%S.%f"
-            offsets["freehandAnnotationLayer1"] = getOffsetSeconds(freehandAnnotationLayer1Synctime, offsets["basetime"]) 
-        else:
-            offsets["freehandAnnotationLayer1"] = 0
+#        if p["freehandAnnotationLayer1"] :
+#            freehandAnnotationLayer1 = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f")) # fhAL1St also has microseconds..."%d/%m/%Y %H:%M:%S.%f"
+#            offsets["freehandAnnotationLayer1"] = getOffsetSeconds(freehandAnnotationLayer1Synctime, offsets["basetime"]) 
+#        else:
+#            offsets["freehandAnnotationLayer1"] = 0
         
        # if p["freehandAnnotationVideo"]: #FIXME 
     #        freehandAnnotationVideo_1_Synctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
@@ -65,14 +66,14 @@ def calculateTimelineOffsets(performanceTimestamps):
       #  else:
       #      offsets["freehandAnnotationVideo"] = 0
         
-        if p["MMRE"]:
-            MMRESynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["MMRE"], "%d/%m/%Y %H:%M:%S"))
-            offsets["MMRE"] = getOffsetSeconds(MMRESynctime, offsets["basetime"])
-        else:
-            offsets["MMRE"] = 0
+#        if p["MMRE"]:
+#            MMRESynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["MMRE"], "%d/%m/%Y %H:%M:%S"))
+#            offsets["MMRE"] = getOffsetSeconds(MMRESynctime, offsets["basetime"])
+#        else:
+#            offsets["MMRE"] = 0
             
-        performanceOffsets[offsets["perfid"]] = offsets
-    return performanceOffsets
+#        performanceOffsets[offsets["perfid"]] = offsets
+#    return performanceOffsets
 
 #####################################
 
@@ -271,7 +272,7 @@ def parseAnnotatedScore(g, performances, filebase, rdfbase):
 
                 
 
-def parsePerformance(g, performances, filebase, rdfbase, offsets):
+def parsePerformance(g, performances, filebase, rdfbase): #, offsets):
     for p in performances:
         perfid = p["uid"]
         perfuri = rdfbase + perfid
@@ -292,8 +293,8 @@ def parsePerformance(g, performances, filebase, rdfbase, offsets):
                 score = uri(perfuri + "/musicalmanifestation/score"),
                 musicalWork = uri(p["workID"]), 
                 workTitle = lit(p["workTitle"]),
-                MMRE_offset = lit(offsets[perfid]["MMRE"]),
-                performanceAudio_offset = lit(offsets[perfid]["performanceAudio"]),
+                #MMRE_offset = lit(offsets[perfid]["MMRE"]),
+                #performanceAudio_offset = lit(offsets[perfid]["performanceAudio"]),
                 MasterTimeLine = uri(perfuri + "/timelines/master"),
                 MMRETimeLine = uri(perfuri + "/timelines/MMRE"),
                 performanceTimeLine = uri(perfuri + "/timelines/performance"),
@@ -304,26 +305,26 @@ def parsePerformance(g, performances, filebase, rdfbase, offsets):
     
         g.parse(data=perf, format="turtle")
 
-def parseAnnotator(g, performances, filebase, rdfbase, offsets):
+def parseAnnotator(g, performances, filebase, rdfbase): #, offsets):
     for p in performances:
         annotatorTemplate = open(filebase + "metamusak/templates/annotator.ttl", "r")
         anno = annotatorTemplate.read()
         anno = anno.format(
-                Agent5=uri(p["annotatorID"]),
+                Agent5 = uri(p["annotatorID"]),
                 MasterTimeLine = uri(p["performanceID"] + "/timelines/master"),
                 annotatorActivityTimeLine = uri(p["performanceID"] + "/timelines/annotatorActivity"),
                 annotatorAudioTimeLine = uri(p["performanceID"] + "/timelines/annotatorAudio"),
-                annotatorAudio_offset = lit(offsets[p["uid"]]["annotatorAudio"]),
-                annotatorVideoTimeLine= uri(p["performanceID"] + "/timelines/annotatorVideo"),
-                annotatorVideo_offset = lit(offsets[p["uid"]]["annotatorVideo"]),
+                #annotatorAudio_offset = lit(offsets[p["uid"]]["annotatorAudio"]),
+                annotatorVideoTimeLine = uri(p["performanceID"] + "/timelines/annotatorVideo"),
+                #annotatorVideo_offset = lit(offsets[p["uid"]]["annotatorVideo"]),
                 annotatorTimeLineMapAnnotatorAudio = uri(p["performanceID"] + "/timelines/annotatorMapAnnotatorAudio"),
                 annotatorTimeLineMapAnnotatorVideo = uri(p["performanceID"] + "/timelines/annotatorMapAnnotatorVideo"),
                 annotatorTimeLineMapFreehandAnnotationLayer1 = uri(p["performanceID"] + "/timelines/annotatorTimeLineMapFreehandAnnotationLayer1"),
                 annotatorTimeLineMapFreehandAnnotationVideo = uri(p["performanceID"] + "/timeline/annotatorTimeLineMapFreehandAnnotationVideo"),
-                #freehandAnnotationVideoTimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationVideo"),
-                freehandAnnotationLayer1TimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationLayer1"),
-                freehandAnnotationLayer1_offset = lit(offsets[p["uid"]]["freehandAnnotationLayer1"]),
-                #freehandAnnotationVideo_offset = lit(offsets[p["uid"]]["freehandAnnotationVideo"])
+                freehandAnnotationVideoTimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationVideo"),
+                #freehandAnnotationLayer1_offset = lit(offsets[p["uid"]]["freehandAnnotationLayer1"]),
+                #freehandAnnotationVideo_offset = lit(offsets[p["uid"]]["freehandAnnotationVideo"]),
+                freehandAnnotationLayer1TimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationLayer1")
         )
         g.parse(data=anno, format="turtle")
         annotatorTemplate.close()
@@ -404,7 +405,7 @@ def parseAnnotatorAudio(g, performances, filebase, rdfbase):
         # e.g. in our case, Rheingold
         # so have to check for their existence before writing sidecart
    
-def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
+def parseAnnotatorVideo(g, performances, filebase, rdfbase): #, offsets):
     annotatorVideoTemplate = open(filebase + "metamusak/templates/annotatorVideo.ttl", "r")
     anno = annotatorVideoTemplate.read()
     for p in performances:
@@ -424,11 +425,11 @@ def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
                         annotatorVideoIntervalStart = lit(mediainfo["date"]), # FIXME NOT THE CORRECT DATE
                         annotatorVideoIntervalDuration = lit(mediainfo["duration"]),
                         annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
-                        annotatorVideoTimeLine = uri(perfuri + "/timelines/annotatorVideo"),
+                        annotatorVideoTimeLine = uri(perfuri + "/timelines/annotatorVideo")
                     )
                 g.parse(data=query, format="turtle")
 
-def parseSourceAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
+def parseSourceAnnotatorVideo(g, performances, filebase, rdfbase): #, offsets):
     sourceAnnotatorVideoTemplate = open(filebase + "metamusak/templates/sourceAnnotatorVideo.ttl", "r")
     anno = sourceAnnotatorVideoTemplate.read()
     for p in performances:
@@ -448,12 +449,12 @@ def parseSourceAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
                         sourceAnnotatorVideoIntervalStart = lit(mediainfo["date"]), # FIXME NOT THE CORRECT DATE
                         sourceAnnotatorVideoIntervalDuration = lit(mediainfo["duration"]),
                         annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
-                        sourceAnnotatorVideoTimeLine = uri(perfuri + "/timelines/sourceAnnotatorVideo"),
+                        sourceAnnotatorVideoTimeLine = uri(perfuri + "/timelines/sourceAnnotatorVideo")
                     )
                 g.parse(data=query, format="turtle")
 
 
-def parseFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets):
+def parseFreehandAnnotationVideo (g, performances, filebase, rdfbase): #, offsets):
     freehandAnnotationVideoTemplate = open(filebase + "/metamusak/templates/freehandAnnotationVideo.ttl", "r")
     anno = freehandAnnotationVideoTemplate.read()
     for p in performances:
@@ -471,10 +472,14 @@ def parseFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets):
                         Agent5 = uri(p["annotatorID"]),
                         freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(os.path.splitext(videofname)[0])),
                         freehandAnnotationVideoBody = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(videofname)),
+                        #freehandAnnotationVideoInterval = uri(perfuri + "/annotation" + "/freehandAnnotationVideoInterval/" + urllib.quote(videofname)),
                         freehandAnnotationVideoBodyIntervalStart = lit(mediainfo["date"]),
                         freehandAnnotationVideoBodyIntervalDuration = lit(mediainfo["duration"]),
+                        #freehandAnnotationVideoIntervalStart = lit(mediainfo["date"]),
+                        #freehandAnnotationVideoIntervalDuration = lit(mediainfo["duration"]),
                         annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
                         freehandAnnotationVideoTimeLine = uri(perfuri + "/timelines/freehandAnnotationVideo"),
+                        #annotatorVideoTimeLine = uri(perfuri + "/timelines/annotatorVideo")
                     )
                 g.parse(data=query, format="turtle")
 
@@ -555,8 +560,8 @@ def generateAnnotator(g, performances, filebase, rdfbase):
                 annotatorTimeLineMapFreehandAnnotationLayer1 = uri(p["performanceID"] + "/timelines/annotatorTimeLineMapFreehandAnnotationLayer1"),
                 annotatorTimeLineMapFreehandAnnotationVideo = uri(p["performanceID"] + "/timeline/annotatorTimeLineMapFreehandAnnotationVideo"),
                 freehandAnnotationVideoTimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationVideo"),
-                freehandAnnotationLayer1_offset = lit(offsets[p["uid"]]["freehandAnnotationLayer1"]),
-                freehandAnnotationVideo_offset = lit(offsets[p["uid"]]["freehandAnnotationVideo"])
+                #freehandAnnotationLayer1_offset = lit(offsets[p["uid"]]["freehandAnnotationLayer1"]),
+                #freehandAnnotationVideo_offset = lit(offsets[p["uid"]]["freehandAnnotationVideo"])
         )
         sidecart = g.query(anno)
         sidecartFile.write(sidecart.serialize(format="turtle"))
@@ -697,7 +702,7 @@ def generateAnnotatorVideo(g, performances, filebase, rdfbase):
                     sidecartFile.close()
                     annotatorVideoConstruct.close()
 
-def generateSourceAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
+def generateSourceAnnotatorVideo(g, performances, filebase, rdfbase): # offsets):
     for p in performances:
         perfid = p["uid"]
         perfuri = rdfbase + perfid
@@ -736,31 +741,33 @@ def generateAnnotatorAudio(g, performances, filebase, rdfbase):
                     annotatorAudioConstruct.close()
 
 
-def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets):
-    for p in performances:
-        perfid = p["uid"]
-        perfuri = rdfbase + p["uid"]
-        sourcedir = filebase + "performance/" + perfid + "/annotation" + "/freehandAnnotationVideo/"
-        for videofname in os.listdir(sourcedir):
-            if videofname.endswith(".mp4"):
-                    freehandAnnotationVideoConstruct = open(filebase + "metamusak/constructors/freehandAnnotationVideo.ttl", "r")
+def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase): #, offsets):
+        for p in performances:
+            perfid = p["uid"]
+            perfuri = rdfbase + perfid
+            sourcedir = filebase + "performance/" + perfid + "/annotation/freehandAnnotationVideo/"
+            for videofname in os.listdir(sourcedir):
+                if videofname.endswith(".mp4"):
                     basename = urllib.quote(os.path.splitext(videofname)[0])
-                    sidecartFile = open(filebase + "performance/" + perfid + "/annotation" + "/freehandAnnotationVideo/" + basename + ".ttl", "w")
+                    sidecartFile = open(filebase + "performance/" + perfid + "/annotation/freehandAnnotationVideo/" + basename + ".ttl", "w")
+                    freehandAnnotationVideoConstruct = open(filebase + "metamusak/constructors/freehandAnnotationVideo.ttl", "r")
                     anno = freehandAnnotationVideoConstruct.read()
                     anno = anno.format(
-                            performance = uri(perfuri),
-                            Agent5 = uri(p["annotatorID"]),
-                            freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(os.path.splitext(videofname)[0])),
-                            freehandAnnotationVideoBody = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(videofname)),
-                            freehandAnnotationVideoBodyIntervalStart = lit(mediainfo["date"]),
-                            freehandAnnotationVideoBodyIntervalDuration = lit(mediainfo["duration"]),
-                            annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
-                            freehandAnnotationVideoTimeLine = uri(perfuri + "/timelines/freehandAnnotationVideo"),
+                            #performance = uri(perfuri),
+                            #Agent5 = uri(p["annotatorID"]),
+                            freehandAnnotationVideo = uri(perfuri + "/annotation/freehandAnnotationVideo/" + basename),
+                            #freehandAnnotationVideoBody = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(videofname)),
+                            #freehandAnnotationVideoInterval = uri(perfuri + "/annotation/freehandAnnotationVideoInterval/" + str(123))
                     )
                     sidecart = g.query(anno)
                     sidecartFile.write(sidecart.serialize(format="turtle"))
                     sidecartFile.close()
                     freehandAnnotationVideoConstruct.close()
+                            ####freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(os.path.splitext(videofname)[0])),
+                            #freehandAnnotationVideoBodyIntervalStart = lit(mediainfo["date"]),
+                            #freehandAnnotationVideoBodyIntervalDuration = lit(mediainfo["duration"]),
+                            #annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
+                            #freehandAnnotationVideoTimeLine = uri(perfuri + "/timelines/freehandAnnotationVideo"),
   
 
 if __name__ == "__main__": 
@@ -835,21 +842,22 @@ if __name__ == "__main__":
 ############ NOW FINISHED READING INPUT ###############################################
 
     #offsets = calculateTimelineOffsets(syncTimestamps) # figure out the timeline offset logic
-    offsets = calculateTimelineOffsets(pencastOffsets)
+    #offsets = calculateTimelineOffsets(pencastOffsets)
+    #calculateTimelineOffsets(syncTimestamps, pencastOffsets)
     g = Graph() # create the grandmaster graph
 
 ############ START PARSING, i.e. filling templates and reading into graph #############
     parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
     parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
-    parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
-    parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
+    parseAnnotator(g, userinputrows, ringcycle, rdfbase) #, offsets) # annotator.ttl
+    parsePerformance(g, userinputrows, ringcycle, rdfbase) # offsets) # performance.ttl
     parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
-    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
+    parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase), #, offsets) #annotatorAudio.ttl
     parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
     parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
-    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
-    parseSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
-    parseTimelines #timelines.ttl
+    parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase), #, offsets) 
+    parseSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase), #, offsets)
+    #parseTimelines #timelines.ttl
 #    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
 
 ############ FINISHED PARSING, now construct the sidecart turtle and write into files #
@@ -860,7 +868,7 @@ if __name__ == "__main__":
     generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
     generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
     generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
-    generateFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets)
-    generateSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
+    generateFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase) #, offsets)
+    generateSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase) #, offsets)
     #generateTimelines #timelines.ttl
 

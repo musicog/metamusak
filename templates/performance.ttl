@@ -68,13 +68,11 @@ _:conceptScore a mo:Score;
 					
 {performanceTimeLineMapMMRE} a tl:ShiftMap ;
                             tl:domainTimeLine {MasterTimeLine} ;
-                            tl:rangeTimeLine {MMRETimeLine} ;
-							tl:delay {MMRE_offset} .
+                            tl:rangeTimeLine {MMRETimeLine} .
 
 {performanceTimeLineMapPerformanceAudio} a tl:ShiftMap ;
                             tl:domainTimeLine {MasterTimeLine} ;
-                            tl:rangeTimeLine {performanceAudioTimeLine} ;
-							tl:delay {performanceAudio_offset} .
+                            tl:rangeTimeLine {performanceAudioTimeLine} .
 					
 
 # [score] has its own file.

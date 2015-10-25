@@ -9,19 +9,19 @@ prefix oa: <http://www.w3.org/ns/oa#>
 prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
-CONSTRUCT{{
-	?freehandAnnotationVideo ?fAVp ?fAVo.
-	?freehandAnnotationVideoBody ?fAVBp ?fAVBo .
-	?freehandAnnotationVideoBodyInterval ?fAVBIp ?fAVBIo .
-}}
-WHERE
-{{BIND ({freehandAnnotationVideo} as ?freehandAnnotationVideo) .
+CONSTRUCT {{
+?freehandAnnotationVideo ?fAVp ?fAVo.
+?freehandAnnotationVideoBody ?fAVBp ?fAVBo.
+?freehandAnnotationVideoInterval ?fAVIp ?fAVIo .
 
+}} WHERE {{
+    BIND({freehandAnnotationVideo} as ?freehandAnnotationVideo) .
+	
 	?freehandAnnotationVideo oa:hasBody ?freehandAnnotationVideoBody ;
-							?fAVp ?fAVo .
-	?freehandAnnotationVideoBody mo:time ?freehandAnnotationVideoBodyInterval ;
-							?fAVBp ?fAVBo .
-	?freehandAnnotationVideoBodyInterval ?fAVBIp ?fAVBIo .
-							
-	}}
+						?fAVp ?fAVo .
+	?freehandAnnotationVideoBody mo:time ?freehandAnnotationVideoInterval;
+						?fAVBp ?fAVBo .
+	
+	?freehandAnnotationVideoInterval ?fAVIp ?fAVIo .
+}}
 

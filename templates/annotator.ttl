@@ -21,33 +21,24 @@ prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 {annotatorAudioTimeLine} a tl:AbstractTimeLine .
 {annotatorVideoTimeLine} a tl:AbstractTimeLine .
 {freehandAnnotationLayer1TimeLine} a tl:AbstractTimeLine .
-#[freehandAnnotationVideoTimeLine] a tl:AbstractTimeLine .
-
-{annotatorAudio_offset} a xsd:duration.
-{annotatorVideo_offset} a xsd:duration.
-#[freehandAnnotationVideo_offset] a xsd:duration.
-{freehandAnnotationLayer1_offset} a xsd:duration.
+{freehandAnnotationVideoTimeLine} a tl:AbstractTimeLine .
 
 
 {annotatorTimeLineMapAnnotatorAudio} a tl:ShiftMap ;
 							tl:domainTimeLine {MasterTimeLine} ;
-							tl:rangeTimeLine {annotatorAudioTimeLine} ;
-							tl:delay {annotatorAudio_offset} .
+							tl:rangeTimeLine {annotatorAudioTimeLine} .
 
 {annotatorTimeLineMapAnnotatorVideo} a tl:ShiftMap ;
 							tl:domainTimeLine {MasterTimeLine} ;
-							tl:rangeTimeLine {annotatorVideoTimeLine} ;
-							tl:delay {annotatorVideo_offset} .
+							tl:rangeTimeLine {annotatorVideoTimeLine} .
 
 {annotatorTimeLineMapFreehandAnnotationLayer1} a tl:ShiftMap ;
 							tl:domainTimeLine {MasterTimeLine} ;
-							tl:rangeTimeLine {freehandAnnotationLayer1TimeLine} ;
-							tl:delay {freehandAnnotationLayer1_offset} .
+							tl:rangeTimeLine {freehandAnnotationLayer1TimeLine} .
 							
 {annotatorTimeLineMapFreehandAnnotationVideo} a tl:ShiftMap ;
 							tl:domainTimeLine {MasterTimeLine} ;
-							tl:rangeTimeLine {freehandAnnotationVideoTimeLine} ;
-							tl:delay {freehandAnnotationVideo_offset} .	
+							tl:rangeTimeLine {freehandAnnotationVideoTimeLine} .
 		
 					
 #we've mapped each timeline pair (domain and range) as belonging to a different ShiftMap. 				
