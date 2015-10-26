@@ -318,9 +318,7 @@ def parseAnnotator(g, performances, filebase, rdfbase, offsets):
                 annotatorTimeLineMapFreehandAnnotationLayer1 = uri(p["performanceID"] + "/timelines/annotatorTimeLineMapFreehandAnnotationLayer1"),
                 annotatorTimeLineMapFreehandAnnotationVideo = uri(p["performanceID"] + "/timeline/annotatorTimeLineMapFreehandAnnotationVideo"),
                 freehandAnnotationVideoTimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationVideo"),
-                freehandAnnotationLayer1TimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationLayer1"),
-                freehandAnnotationLayer1_offset = lit(offsets[p["uid"]]["freehandAnnotationLayer1"]),
-                freehandAnnotationVideo_offset = lit(offsets[p["uid"]]["freehandAnnotationVideo"])
+                freehandAnnotationLayer1TimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationLayer1")
         )
         
         g.parse(data=anno, format="turtle")
@@ -337,12 +335,14 @@ def parsePerformanceAudio(g, performances, filebase, rdfbase, offsets):
             if audiofname.endswith(".mp3"):
                 # found some annotator audio!
                 #print sourcedir + audiofname....debugging, oooh yeah.
+                ##timestamp = open(os.path.splitext(audiofname)[0] + ".txt").read().rstrip()
                 mediainfo = getMediaInfo(sourcedir + audiofname)
                 query = perfau.format(
                         performance = uri(perfuri),
                         performanceAudio = uri(perfuri + "/musicalmanifestation/" + urllib.quote(os.path.splitext(audiofname)[0])), # cut off the ".mp3" suffix
                         digitalSignal = uri(perfuri + "/musicalmanifestation/" + urllib.quote(audiofname)),
                         digitalSignalIntervalStart = lit(offsets[p["uid"]]["performanceAudio"]),
+                        ##digitalSignalIntervalStart = lit(timestamp),
                         digitalSignalIntervalDuration = lit(mediainfo["duration"]),
                         performanceAudioTimeLine = uri(perfuri + "/timelines/performanceAudio"),
                         performanceTimeLine = uri(perfuri + "/timelines/performanceTimeLine"),
@@ -553,8 +553,7 @@ def generateAnnotator(g, performances, filebase, rdfbase):
                 annotatorTimeLineMapFreehandAnnotationLayer1 = uri(p["performanceID"] + "/timelines/annotatorTimeLineMapFreehandAnnotationLayer1"),
                 annotatorTimeLineMapFreehandAnnotationVideo = uri(p["performanceID"] + "/timeline/annotatorTimeLineMapFreehandAnnotationVideo"),
                 freehandAnnotationVideoTimeLine = uri(p["performanceID"] + "/timelines/freehandAnnotationVideo"),
-                freehandAnnotationLayer1_offset = lit(offsets[p["uid"]]["freehandAnnotationLayer1"]),
-                freehandAnnotationVideo_offset = lit(offsets[p["uid"]]["freehandAnnotationVideo"])
+
         )
         sidecart = g.query(anno)
         sidecartFile.write(sidecart.serialize(format="turtle"))
@@ -746,14 +745,14 @@ def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets
                     sidecartFile = open(filebase + "performance/" + perfid + "/annotation" + "/freehandAnnotationVideo/" + basename + ".ttl", "w")
                     anno = freehandAnnotationVideoConstruct.read()
                     anno = anno.format(
-                            performance = uri(perfuri),
-                            Agent5 = uri(p["annotatorID"]),
-                            freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(os.path.splitext(videofname)[0])),
-                            freehandAnnotationVideoBody = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(videofname)),
-                            freehandAnnotationVideoBodyIntervalStart = lit(mediainfo["date"]),
-                            freehandAnnotationVideoBodyIntervalDuration = lit(mediainfo["duration"]),
-                            annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
-                            freehandAnnotationVideoTimeLine = uri(perfuri + "/timelines/freehandAnnotationVideo"),
+                           # performance = uri(perfuri),
+                            #Agent5 = uri(p["annotatorID"]),
+                            freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(os.path.splitext(videofname)[0]))
+                           # freehandAnnotationVideoBody = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(videofname)),
+                            #freehandAnnotationVideoBodyIntervalStart = lit(mediainfo["date"]),
+                            #freehandAnnotationVideoBodyIntervalDuration = lit(mediainfo["duration"]),
+                            #annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
+                            #freehandAnnotationVideoTimeLine = uri(perfuri + "/timelines/freehandAnnotationVideo"),
                     )
                     sidecart = g.query(anno)
                     sidecartFile.write(sidecart.serialize(format="turtle"))

@@ -25,8 +25,6 @@ prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
 {annotatorAudio_offset} a xsd:duration.
 {annotatorVideo_offset} a xsd:duration.
-{freehandAnnotationVideo_offset} a xsd:duration.
-{freehandAnnotationLayer1_offset} a xsd:duration.
 
 
 {annotatorTimeLineMapAnnotatorAudio} a tl:ShiftMap ;
@@ -39,15 +37,7 @@ prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 							tl:rangeTimeLine {annotatorVideoTimeLine} ;
 							tl:delay {annotatorVideo_offset} .
 
-{annotatorTimeLineMapFreehandAnnotationLayer1} a tl:ShiftMap ;
-							tl:domainTimeLine {MasterTimeLine} ;
-							tl:rangeTimeLine {freehandAnnotationLayer1TimeLine} ;
-							tl:delay {freehandAnnotationLayer1_offset} .
-							
-{annotatorTimeLineMapFreehandAnnotationVideo} a tl:ShiftMap ;
-							tl:domainTimeLine {MasterTimeLine} ;
-							tl:rangeTimeLine {freehandAnnotationVideoTimeLine} ;
-							tl:delay {freehandAnnotationVideo_offset} .	
+
 		
 					
 #we've mapped each timeline pair (domain and range) as belonging to a different ShiftMap. 				
