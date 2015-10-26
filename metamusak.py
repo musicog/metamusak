@@ -25,7 +25,7 @@ def calculateTimelineOffsets(performanceTimestamps):
      
         if p["annotatorAudio"]: # we only have it for Rheingold
             offsets["annotatorAudio"] = generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S")) #Digitpen only specific to a minute
-            offsets["annotatorAudio"] = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S"))
+            #offsets["annotatorAudio"] = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorAudio"], "%H:%M:%S"))
         else:
             offsets["annotatorAudio"] = "None" #this one says "None" the others are 0
 
@@ -335,14 +335,13 @@ def parsePerformanceAudio(g, performances, filebase, rdfbase, offsets):
             if audiofname.endswith(".mp3"):
                 # found some annotator audio!
                 #print sourcedir + audiofname....debugging, oooh yeah.
-                ##timestamp = open(os.path.splitext(audiofname)[0] + ".txt").read().rstrip()
+                timestamp = open(sourcedir + os.path.splitext(audiofname)[0] + ".txt").read().rstrip()
                 mediainfo = getMediaInfo(sourcedir + audiofname)
                 query = perfau.format(
                         performance = uri(perfuri),
                         performanceAudio = uri(perfuri + "/musicalmanifestation/" + urllib.quote(os.path.splitext(audiofname)[0])), # cut off the ".mp3" suffix
                         digitalSignal = uri(perfuri + "/musicalmanifestation/" + urllib.quote(audiofname)),
-                        digitalSignalIntervalStart = lit(offsets[p["uid"]]["performanceAudio"]),
-                        ##digitalSignalIntervalStart = lit(timestamp),
+                        digitalSignalIntervalStart = lit(timestamp),
                         digitalSignalIntervalDuration = lit(mediainfo["duration"]),
                         performanceAudioTimeLine = uri(perfuri + "/timelines/performanceAudio"),
                         performanceTimeLine = uri(perfuri + "/timelines/performanceTimeLine"),

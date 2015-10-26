@@ -23,9 +23,6 @@ prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 {freehandAnnotationLayer1TimeLine} a tl:AbstractTimeLine .
 {freehandAnnotationVideoTimeLine} a tl:AbstractTimeLine .
 
-{annotatorAudio_offset} a xsd:duration.
-{annotatorVideo_offset} a xsd:duration.
-
 
 {annotatorTimeLineMapAnnotatorAudio} a tl:ShiftMap ;
 							tl:domainTimeLine {MasterTimeLine} ;

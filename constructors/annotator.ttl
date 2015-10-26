@@ -22,8 +22,8 @@ CONSTRUCT {{
 	?annotatorVideoTimeLine ?aVTLs ?aVTLo .
 	?freehandAnnotationLayer1TimeLine ?fAL1TLs ?fAL1TLo .
 	?freehandAnnotationVideoTimeLine ?fAVTLs  ?fAVTLo .
-	?annotatorAudio_offset ?aAos ?aAoo .
-	?annotatorVideo_offset ?aVos ?aVoo .
+	#?annotatorAudio_offset ?aAos ?aAoo .
+	#?annotatorVideo_offset ?aVos ?aVoo .
 
 	
 }} WHERE {{ 
@@ -53,8 +53,8 @@ CONSTRUCT {{
 	?annotatorVideoTimeLine ?aVTLs ?aVTLo .
 	?freehandAnnotationLayer1TimeLine ?fAL1TLs ?fAL1TLo .
 	?freehandAnnotationVideoTimeLine ?fAVTLs  ?fAVTLo .
-	?annotatorAudio_offset ?aAos ?aAoo .
-	?annotatorVideo_offset ?aVos ?aVoo .
+	#?annotatorAudio_offset ?aAos ?aAoo .
+	#?annotatorVideo_offset ?aVos ?aVoo .
 
 	
 }}	
