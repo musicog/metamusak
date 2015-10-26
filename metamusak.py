@@ -18,11 +18,9 @@ def calculateTimelineOffsets(performanceTimestamps):
         performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S") #granularity to 1 second
         MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") #Musical Manifestation Realisation Event Sync Time, granularity to 1 second
         freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f") #annotations made on the iPad
-        annotatorVideoSynctime = datetime.strptime(p["annotatorVideo"], "%H:%M:%S") #video of annotator making annotations
+        print p["annotatorVideo"]
         #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"]) "%H:%M:%S") #FIXME these details are not in the .csv!!!
-        annotatorAudioSynctime = datetime.strptime(p["annotatorAudio"], "%H:%M:%S") #Echo digital pen only has upto one minute in granularity - dictated notes. 
-        freehandAnnotationVideo_3_Synctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
-      
+        #freehandAnnotationVideo_3_Synctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
         offsets["basetime"] = performanceAudioSynctime      # we declare performanceAudio to be our ground truth universal timeline # thus, map different temporal offsets between that and the others
         offsets["performanceAudio"] = 0;
      
@@ -57,7 +55,7 @@ def calculateTimelineOffsets(performanceTimestamps):
         else:
             offsets["freehandAnnotationLayer1"] = 0
         
-        if p["freehandAnnotationVideo"]: #FIXME 
+        if "freehandAnnotationVideo" in p: #FIXME 
             freehandAnnotationVideo_1_Synctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
             freehandAnnotationVideo_2_Synctime = freehandAnnotationVideo_1_Synctime + pencastTimestamps
             freehandAnnotationVideo_3_Synctime = freehandAnnotationVideo_2_Synctime - writingStarttime
@@ -766,7 +764,7 @@ def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets
 
 if __name__ == "__main__": 
     # Set up physical paths, i.e. where things live on the hard drive
-    ringcycle = "/Volumes/Terhin_oma_eksternali/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
+    ringcycle = "/home/davidw/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
     perfbase = ringcycle + "performance/" # the performance folder
     # rdf path, i.e. the prefix of every URI generated
     rdfbase = "http://performance.data.t-mus.org/performance/" 
