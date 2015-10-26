@@ -763,7 +763,7 @@ def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets
 
 if __name__ == "__main__": 
     # Set up physical paths, i.e. where things live on the hard drive
-    ringcycle = "/home/davidw/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
+    ringcycle = "/Volumes/Terhin_oma_eksternali/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
     perfbase = ringcycle + "performance/" # the performance folder
     # rdf path, i.e. the prefix of every URI generated
     rdfbase = "http://performance.data.t-mus.org/performance/" 

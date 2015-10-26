@@ -20,7 +20,7 @@ prefix dct: <http://purl.org/dc/terms/>
 					 	mo:media_type dct:MovingImage ;
 					 	rdfs:comment "Video capturing freehand annotations (freehand text) made with the digital pen." .
 
-{freehandAnnotationVideoBodyInterval} a tl:Interval ;
+_:freehandAnnotationVideoBodyInterval a tl:Interval ;
 					 			tl:start {freehandAnnotationVideoBodyIntervalStart} ;
 					 			tl:duration {freehandAnnotationVideoBodyIntervalDuration} ;
 								tl:timeline {annotatorActivityTimeLine}  ;
