@@ -419,7 +419,7 @@ def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
                         performance = uri(perfuri),
                         Agent5 = uri(p["annotatorID"]),
                         annotatorVideo = uri(perfuri + "/annotator/" + urllib.quote(os.path.splitext(videofname)[0])), # cut off the file suffix
-                        annotatorVideoIntervalStart = lit(mediainfo["date"]), # FIXME NOT THE CORRECT DATE
+                        annotatorVideoIntervalStart = lit(offsets[p["uid"]]["annotatorVideo"]),# FIXME NOT THE CORRECT DATE
                         annotatorVideoIntervalDuration = lit(mediainfo["duration"]),
                         annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
                         annotatorVideoTimeLine = uri(perfuri + "/timelines/annotatorVideo"),
@@ -443,7 +443,7 @@ def parseSourceAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
                         performance = uri(perfuri),
                         Agent5 = uri(p["annotatorID"]),
                         sourceAnnotatorVideo = uri(perfuri + "/annotator/sourceAnnotatorVideo/" + urllib.quote(os.path.splitext(videofname)[0])), # cut off the file suffix 
-                        sourceAnnotatorVideoIntervalStart = lit(mediainfo["date"]), # FIXME NOT THE CORRECT DATE
+                        sourceAnnotatorVideoIntervalStart = lit(mediainfo["date"]), 
                         sourceAnnotatorVideoIntervalDuration = lit(mediainfo["duration"]),
                         annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
                         sourceAnnotatorVideoTimeLine = uri(perfuri + "/timelines/sourceAnnotatorVideo"),
