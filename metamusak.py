@@ -18,7 +18,6 @@ def calculateTimelineOffsets(performanceTimestamps):
         performanceAudioSynctime = datetime.strptime(p["performanceAudio"], "%d/%m/%Y %H:%M:%S") #granularity to 1 second
         MMRESynctime = datetime.strptime(p["MMRE"],"%d/%m/%Y %H:%M:%S") #Musical Manifestation Realisation Event Sync Time, granularity to 1 second
         freehandAnnotationLayer1Synctime = datetime.strptime(p["freehandAnnotationLayer1"], "%d/%m/%Y %H:%M:%S.%f") #annotations made on the iPad
-        print p["annotatorVideo"]
         #sourceAnnotatorVideoSynctime = datetime.strptime(p["sourceAnnotatorVideo"]) "%H:%M:%S") #FIXME these details are not in the .csv!!!
         #freehandAnnotationVideo_3_Synctime = datetime.strptime(p["freehandAnnotationVideo"], "%H:%M:%S")
         offsets["basetime"] = performanceAudioSynctime      # we declare performanceAudio to be our ground truth universal timeline # thus, map different temporal offsets between that and the others
@@ -328,7 +327,7 @@ def parseAnnotator(g, performances, filebase, rdfbase, offsets):
         annotatorTemplate.close()
 
 
-def parsePerformanceAudio(g, performances, filebase, rdfbase):                
+def parsePerformanceAudio(g, performances, filebase, rdfbase, offsets):                
     performanceAudioTemplate = open(filebase + "metamusak/templates/performanceAudio.ttl", "r")
     perfau = performanceAudioTemplate.read()
     for p in performances:
@@ -343,7 +342,7 @@ def parsePerformanceAudio(g, performances, filebase, rdfbase):
                         performance = uri(perfuri),
                         performanceAudio = uri(perfuri + "/musicalmanifestation/" + urllib.quote(os.path.splitext(audiofname)[0])), # cut off the ".mp3" suffix
                         digitalSignal = uri(perfuri + "/musicalmanifestation/" + urllib.quote(audiofname)),
-                        digitalSignalIntervalStart = lit(mediainfo["date"]),
+                        digitalSignalIntervalStart = lit(offsets[p["uid"]]["performanceAudio"]),
                         digitalSignalIntervalDuration = lit(mediainfo["duration"]),
                         performanceAudioTimeLine = uri(perfuri + "/timelines/performanceAudio"),
                         performanceTimeLine = uri(perfuri + "/timelines/performanceTimeLine"),
@@ -843,7 +842,7 @@ if __name__ == "__main__":
     parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
     parseAnnotatorAudio(g, userinputrows, ringcycle, rdfbase) #annotatorAudio.ttl
     parseAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets) #annotatorAudio.ttl
-    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase) # performanceAudio.ttl
+    parsePerformanceAudio(g, userinputrows, ringcycle, rdfbase, offsets) # performanceAudio.ttl
     parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
     parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
     parseSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
