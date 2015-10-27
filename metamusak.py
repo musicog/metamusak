@@ -40,6 +40,7 @@ def calculateTimelineOffsets(performanceTimestamps):
             offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
             offsets["annotatorVideoSynctime"] = annotatorVideoSynctime
         else:  
+            offsets["annotatorVideo"] = 0
             offsets["annotatorVideoSynctime"] = 0
                    
         #if p["sourceAnnotatorVideo"] :
@@ -418,7 +419,7 @@ def parseAnnotatorVideo(g, performances, filebase, rdfbase, offsets):
                         performance = uri(perfuri),
                         Agent5 = uri(p["annotatorID"]),
                         annotatorVideo = uri(perfuri + "/annotator/" + urllib.quote(os.path.splitext(videofname)[0])), # cut off the file suffix
-                        annotatorVideoIntervalStart = lit(offsets[p["uid"]]["annotatorVideo"]),# FIXME NOT THE CORRECT DATE
+                        annotatorVideoIntervalStart = lit(offsets[p["uid"]]["annotatorVideoSynctime"]),
                         annotatorVideoIntervalDuration = lit(mediainfo["duration"]),
                         annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
                         annotatorVideoTimeLine = uri(perfuri + "/timelines/annotatorVideo"),
