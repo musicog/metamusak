@@ -36,10 +36,11 @@ def calculateTimelineOffsets(performanceTimestamps):
             if perfid != "gvX3hrDeTEA": #for all except Walkuere
                 annotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
             else:
-                annotatorVideoSynctime = offsets["basetime"] + generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) #always ADD timeDelta for Walkuere
-            offsets["annotatorVideo"] = annotatorVideoSynctime
+             annotatorVideoSynctime = offsets["basetime"] + generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) #always ADD timeDelta for Walkuere
+            offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
+            offsets["annotatorVideoSynctime"] = annotatorVideoSynctime
         else:  
-            offsets["annotatorVideo"] = 0
+            offsets["annotatorVideoSynctime"] = 0
                    
         #if p["sourceAnnotatorVideo"] :
          #   sourceAnnotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["sourceAnnotatorVideo"], "%H:%M:%S"))
