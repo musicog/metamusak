@@ -6,6 +6,7 @@ from warnings import warn
 import urllib
 import random
 import string
+import sys
 import csv
 import re
 import os
@@ -95,7 +96,17 @@ def uid():
     # return a unique-ish short identifier...
     # sample space of 64^8 (2.8e14), should allow millions of strings without collisions
     return ''.join([random.choice(string.ascii_letters+string.digits+'-_') for ch in range(8)])
-    
+
+def actStartTimes(filebase, p):
+    # find act starting times from listener's performance.csv, to inform performance audio start times
+    pageturnsfile = csv.reader(open(filebase + "performance/" + p["uid"] + "/musicalmanifestation/pageturn/performance.csv", "r"), delimiter=",", quotechar='"')
+    actStarts = dict()
+    for ix, line in enumerate(pageturnsfile):
+        n = re.match("act (\d+) starts", line[0])
+        if n: # act ends are just page turns in richard's tool
+                actStarts[n.group(1)] = line[4]
+    return actStarts
+
 def parseScore(g, performances, filebase, rdfbase) :
     for p in performances:
         perfid = p["uid"]
@@ -332,17 +343,17 @@ def parsePerformanceAudio(g, performances, filebase, rdfbase, offsets):
     for p in performances:
         sourcedir =  filebase + "performance/" + p["uid"] + "/musicalmanifestation/"
         perfuri = rdfbase + p["uid"]
+        actStarts = actStartTimes(filebase, p)
         for audiofname in os.listdir(sourcedir):
             if audiofname.endswith(".mp3"):
                 # found some annotator audio!
-                #print sourcedir + audiofname....debugging, oooh yeah.
-                timestamp = open(sourcedir + os.path.splitext(audiofname)[0] + ".txt").read().rstrip()
+                act = re.match("\w+-C(\d+).mp3", audiofname).group(1)
                 mediainfo = getMediaInfo(sourcedir + audiofname)
                 query = perfau.format(
                         performance = uri(perfuri),
                         performanceAudio = uri(perfuri + "/musicalmanifestation/" + urllib.quote(os.path.splitext(audiofname)[0])), # cut off the ".mp3" suffix
                         digitalSignal = uri(perfuri + "/musicalmanifestation/" + urllib.quote(audiofname)),
-                        digitalSignalIntervalStart = lit(timestamp),
+                        digitalSignalIntervalStart = lit(actStarts[act]),
                         digitalSignalIntervalDuration = lit(mediainfo["duration"]),
                         performanceAudioTimeLine = uri(perfuri + "/timelines/performanceAudio"),
                         performanceTimeLine = uri(perfuri + "/timelines/performanceTimeLine"),
@@ -379,16 +390,36 @@ def parseAnnotatorAudio(g, performances, filebase, rdfbase):
         for audiofname in os.listdir(sourcedir):
             if audiofname.endswith(".m4a"):
                 # found some annotator audio!
+                # ----- FIGURE OUT TIMESTAMP from terrible file name
+                # like 11.05.2014 956p.m4a for the FIRST recording made at 09:56pm on that day
+                # or   11.05.2014 956p (1).m4a for the SECOND recording made at 09:56pm on that day
+                # this is bad enough that horrible regexes are easier than figuring out strptime. I'm sorry.
+                # FIRST strip out everything after the am/pm flag:
+                timestamp = re.match("([^ap]*(a|p))", audiofname).group(1)
+                # Now capture out the fields...
+                ts = re.match("(\d+)\.(\d+)\.(\d+) (\d+)(a|p)", timestamp)
+                # Now re-assemble in a sensible fashion, according to format in other places
+                # e.g. 05/11/2014 21:56"
+                # to start with, let's do the date part, i.e. 05/11/2014
+                timestamp = ts.group(2) + "/" + ts.group(1) + "/" + ts.group(3)
+                # now, split out the non-zero-padded time into hour and minutes
+                timestring = re.match("(\d+)(\d\d)", ts.group(4))
+                hour = timestring.group(1).zfill(1)
+                minutes = timestring.group(2)
+                # now, check if we are in pm, and if so add 12 to the hour
+                if ts.group(5) == 'p':
+                    hour = str(int(hour) + 12)
+                # finally, finish assembling the timestamp
+                timestamp += " " + hour + ":" + minutes
+                # ----- DONE FIGURING OUT TIMESTAMP
+
                 mediainfo = getMediaInfo(sourcedir + audiofname)
-                for key in mediainfo:
-                    if mediainfo[key] is None:
-                        continue # skip non-values
                 query = anno.format(
                         performance = uri(perfuri),
                         Agent5 = uri(p["annotatorID"]),
                         annotatorAudio = uri(perfuri + "/annotation/audio/" + urllib.quote(os.path.splitext(audiofname)[0])), # cut off the file suffix
                         annotatorAudioBody = uri(perfuri + "/annotation/audio/" + urllib.quote(audiofname)),
-                        annotatorAudioBodyIntervalStart = lit(mediainfo["date"]),
+                        annotatorAudioBodyIntervalStart = lit(timestamp),
                         annotatorAudioBodyIntervalDuration = lit(mediainfo["duration"]),
                         bitrate = lit(mediainfo["averageBitRate"]),
                         dateCreated = lit(mediainfo["date"]),
@@ -455,21 +486,19 @@ def parseFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets):
     freehandAnnotationVideoTemplate = open(filebase + "/metamusak/templates/freehandAnnotationVideo.ttl", "r")
     anno = freehandAnnotationVideoTemplate.read()
     for p in performances:
-        sourcedir = filebase + "performance/" + p["uid"] + "/annotation" + "/freehandAnnotationVideo/"
+        actStarts = actStartTimes(filebase, p)
+        sourcedir = filebase + "performance/" + p["uid"] + "/annotation/freehandAnnotationVideo/"
         perfuri = rdfbase + p["uid"]
         for videofname in os.listdir(sourcedir):
             if videofname.endswith(".mp4"):
+                act = re.match("\w+-A(\d+).mp4").group(1)
                 mediainfo = getMediaInfo(sourcedir + videofname)
-                for key in mediainfo: 
-                    #print key + " : " + mediainfo[key]
-                    if mediainfo[key] is None:
-                        continue
                 query = anno.format(
                         performance = uri(perfuri),
                         Agent5 = uri(p["annotatorID"]),
                         freehandAnnotationVideo = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(os.path.splitext(videofname)[0])),
                         freehandAnnotationVideoBody = uri(perfuri + "/annotation" + "/freehandAnnotationVideo/" + urllib.quote(videofname)),
-                        freehandAnnotationVideoBodyIntervalStart = lit(mediainfo["date"]),
+                        freehandAnnotationVideoBodyIntervalStart = lit(actStarts[act]),
                         freehandAnnotationVideoBodyIntervalDuration = lit(mediainfo["duration"]),
                         annotatorActivityTimeLine = uri(perfuri + "/timelines/annotatorActivity"),
                         freehandAnnotationVideoTimeLine = uri(perfuri + "/timelines/freehandAnnotationVideo"),
@@ -761,8 +790,11 @@ def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets
   
 
 if __name__ == "__main__": 
+    if  len(sys.argv) != 2:
+        print "Please invoke with: python metamusak.py /path/to/performance"
+        sys.exit()
     # Set up physical paths, i.e. where things live on the hard drive
-    ringcycle = "/Volumes/Terhin_oma_eksternali/MetaRingCycle/" # top level directory that contains the metamusak and performance folders
+    ringcycle = sys.argv[1] # top level directory that contains the metamusak and performance folders
     perfbase = ringcycle + "performance/" # the performance folder
     # rdf path, i.e. the prefix of every URI generated
     rdfbase = "http://performance.data.t-mus.org/performance/" 
@@ -777,7 +809,7 @@ if __name__ == "__main__":
         if ix == 0: # header row - populate fields (i.e. column headers in CSV)
             for field in line:
                 userinputfields.append(field)
-        else : # content row: fill in fields for this performance
+        else: # content row: fill in fields for this performance
             thisPerformance = dict() # will hold key:value pairs, where keys are column headers and values are the content
             for ix, field in enumerate(userinputfields):
                 thisPerformance[field] = line[ix]
