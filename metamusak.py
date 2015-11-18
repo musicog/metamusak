@@ -6,6 +6,7 @@ from warnings import warn
 import urllib
 import random
 import string
+import uuid
 import sys
 import csv
 import re
@@ -34,10 +35,10 @@ def calculateTimelineOffsets(performanceTimestamps):
             # therefore, subtract annotatorVideo syncTimestamp (as timedelta) from basetime to get annotatorVideo time
             # EXCEPT for WALKURE, where we need to add 52seconds 
             perfid = p["uid"]
-            if perfid != "gvX3hrDeTEA": #for all except Walkuere
-                annotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S"))
-            else:
-             annotatorVideoSynctime = offsets["basetime"] + generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) #always ADD timeDelta for Walkuere
+            if perfid != "gvX3hrDeTEA": #for all except Walkuere 
+                annotatorVideoSynctime = offsets["basetime"] - generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) 
+            else: 
+                annotatorVideoSynctime = offsets["basetime"] + generateTimeDelta(datetime.strptime(p["annotatorVideo"], "%H:%M:%S")) #always ADD timeDelta for Walkuere
             offsets["annotatorVideo"] = getOffsetSeconds(annotatorVideoSynctime, offsets["basetime"])
             offsets["annotatorVideoSynctime"] = annotatorVideoSynctime
         else:  
@@ -491,7 +492,7 @@ def parseFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets):
         perfuri = rdfbase + p["uid"]
         for videofname in os.listdir(sourcedir):
             if videofname.endswith(".mp4"):
-                act = re.match("\w+-A(\d+).mp4").group(1)
+                act = re.match("\w+-A(\d+).mp4", videofname).group(1)
                 mediainfo = getMediaInfo(sourcedir + videofname)
                 query = anno.format(
                         performance = uri(perfuri),
@@ -539,19 +540,40 @@ def getMediaInfo(mediaFile):
             thisfile["audioformat"] = track.format
     return thisfile
 
-def mintRequiredURIs(thisPerformance):
-    #userinputfile = csv.reader(open(filebase + "metamusak/" + perfid + "user_input.csv", "r"), delimiter=",", quotechar='"')
-    #for ix, line in enumerate(pageturnsfile):
-    #        if ix <= 1: # skip header
-    #            next
-    #        else: # content row - use the content from here
-    #            if userinputname != uri:
-    #                personidentifier = dict()
-    #                   personidentifier["id"] = 
-    #                   personidentifier["label"] = str()
-    #           else:
-    
-    
+def mintRequiredURIs(filebase, baseuri, thisPerformance):
+    perfid = thisPerformance["performanceID"][thisPerformance["performanceID"].rindex("/")+1:]
+    agentIdentifiers = ["workID", "composerID", "arrangerID", "performerID", "annotatorID", "listenerID"]
+    for aID in agentIdentifiers:
+        # if the user has supplied a URI, use that
+        # otherwise, mint a new URI, and assume the user provided string is a label
+        if not thisPerformance[aID].startswith("http"):
+            # store the label
+            thisPerformance[aID.replace("ID", "Label")] = thisPerformance[aID]
+            # mint new URI
+            minted = str(uuid.uuid4())
+            thisPerformance[aID] = baseuri + "agent/" + minted
+            # create a minimal resource pointing to the corresponding sidecart
+            if aID == "annotatorID":
+                sidecart = "annotator/annotator.ttl"
+            else:
+                sidecart = "performance.ttl"
+            mintedResource = open(filebase + "agent/" + minted + ".ttl", "w")
+            mintedResource.write(""" 
+{0} <http://www.w3.org/2000/01/rdf-schema#label> {1} ; 
+    <http://www.w3.org/2000/01/rdf-schema#seeAlso> {2} 
+            """.format( 
+                uri(thisPerformance[aID]), 
+                lit(thisPerformance[aID.replace("ID","Label")]), 
+                uri(baseuri + "performance/" + perfid + "/" + sidecart))
+            )
+            mintedResource.close() 
+
+    # do the same for the location
+    if not thisPerformance["performanceLocationID"].startswith("http"):
+            # store the label
+            thisPerformance["performanceLocationLabel"] = thisPerformance["performanceLocationID"]
+            # mint new URI
+            thisPerformance["performanceLocationID"] = baseuri + "location/" + str(uuid.uuid4())
                     # take the human written label, 
                     # replace it with a URI by using the uid()
                     # keep names as labels i.e. add ' rdfs:label " " '
@@ -791,13 +813,14 @@ def generateFreehandAnnotationVideo (g, performances, filebase, rdfbase, offsets
 
 if __name__ == "__main__": 
     if  len(sys.argv) != 2:
-        print "Please invoke with: python metamusak.py /path/to/performance"
+        print "Please invoke with: python metamusak.py /path/to/MetaRingCycle/"
         sys.exit()
     # Set up physical paths, i.e. where things live on the hard drive
     ringcycle = sys.argv[1] # top level directory that contains the metamusak and performance folders
     perfbase = ringcycle + "performance/" # the performance folder
     # rdf path, i.e. the prefix of every URI generated
-    rdfbase = "http://performance.data.t-mus.org/performance/" 
+    rdfroot = "http://performance.data.t-mus.org/"
+    rdfbase = rdfroot + "performance/"
 
 ############INPUT READING - currently from CSV, in future from web interface################################
 
@@ -813,8 +836,8 @@ if __name__ == "__main__":
             thisPerformance = dict() # will hold key:value pairs, where keys are column headers and values are the content
             for ix, field in enumerate(userinputfields):
                 thisPerformance[field] = line[ix]
-            # mint any URIs not provided by the user... TODO in the future, currently does nothing
-            thisPerformance = mintRequiredURIs(thisPerformance)
+            # mint any URIs not provided by the user
+            thisPerformance = mintRequiredURIs(ringcycle,rdfroot,thisPerformance)
             userinputrows.append(thisPerformance)
     for p in userinputrows: # for each dictionary representing a performance's key : value pairs
         # determine the UID for this performance, i.e. the <UID> in  /performance/<UID>
