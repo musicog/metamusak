@@ -165,14 +165,21 @@ def parseScore(g, performances, filebase, rdfbase) :
                     m = re.search("(\w+)_originalscore_page(\d+).pdf", page)
                     pagenum = int(m.group(2))
                     if pagenum in pageturns:
+                    # set up pageOfScore.ttl
+                        pageOfScoreTemplate = open(filebase + "metamusak/templates/pageOfScore.ttl", "r")
+                        psc = pageOfScoreTemplate.read()
+                        psc = psc.format(
+                            conceptScore = uri(perfuri + "/musicalmanifestation/conceptScore"),
+                            score = uri(perfuri + "/musicalmanifestation/score/score"),
+                            pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
+                            MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum)) 
+                        )
                     # set up score.ttl
                         scoreTemplate = open(filebase + "metamusak/templates/score.ttl", "r")
                         sc = scoreTemplate.read()
                         sc = sc.format(
-                            conceptScore = uri(perfuri + "/musicalmanifestation/conceptScore"),
-                            score = uri(perfuri + "/musicalmanifestation/score"),
-                            pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0])),
-                            MusicalManifestationRealizationEvent = uri(perfuri + "/musicalmanifestation/pageturn/" + str(pagenum)) 
+                            score = uri(perfuri + "/musicalmanifestation/score/score"),
+                            pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(os.path.splitext(page)[0]))
                         )
                     # set up performancePageturn.ttl 
                         performancePageturnTemplate = open(filebase + "metamusak/templates/performancePageturn.ttl")
@@ -187,6 +194,7 @@ def parseScore(g, performances, filebase, rdfbase) :
                             performanceTimeLineMapMMRE = uri(perfuri + "/timelines/performanceMapMMRE")
                         )
                     # now ingest both templates    
+                        g.parse(data=psc, format="turtle")
                         g.parse(data=sc, format="turtle")
                         g.parse(data=pt, format="turtle")
                     else: # don't produce any RDF for pages missing performance pageturn data (e.g. end of Walkuere)
@@ -299,7 +307,7 @@ def parsePerformance(g, performances, filebase, rdfbase, offsets):
                 Agent5 = uri(p["annotatorID"]),
                 Agent6 = uri(p["listenerID"]), 
                 conceptScore = uri(perfuri + "/musicalmanifestation/conceptScore"),
-                score = uri(perfuri + "/musicalmanifestation/score"),
+                score = uri(perfuri + "/musicalmanifestation/score/score"),
                 musicalWork = uri(p["workID"]), 
                 workTitle = lit(p["workTitle"]),
                 MMRE_offset = lit(offsets[perfid]["MMRE"]),
@@ -660,15 +668,26 @@ def generateScore(g, performances, filebase, rdfbase):
                 m = re.search("(\w+)_originalscore_page(\d+).pdf", page)
                 pagenum = int(m.group(2))
                 scoreConstruct = open(filebase + "metamusak/constructors/score.ttl", "r")
-                scoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/" + pagebase + ".ttl", "w")
+                scoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/score.ttl", "w")
                 sc = scoreConstruct.read()
                 sc = sc.format(
-                    pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(pagebase))
+                    score = uri(perfuri + "/musicalmanifestation/score/score")
                 )
-                scoreSidecart = g.query(sc)
+                sidecart = g.query(sc)
                 scoreSidecartFile.write(scoreSidecart.serialize(format="turtle"))
                 scoreConstruct.close()
                 scoreSidecartFile.close()
+                
+                pageOfScoreConstruct = open(filebase + "metamusak/constructors/pageOfScore.ttl", "r")
+                pageOfscoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/" + pagebase + ".ttl", "w")
+                psc = scoreConstruct.read()
+                psc = psc.format(
+                    pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(pagebase))
+                )
+                pageOfScoreSidecart = g.query(psc)
+                pageOfScoreSidecartFile.write(pageOfScoreSidecart.serialize(format="turtle"))
+                pageOfScoreConstruct.close()
+                pageOfScoreSidecartFile.close()
                 
                 performancePageturnConstruct = open(filebase + "metamusak/constructors/performancePageturn.ttl", "r")
                 performancePageturnSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/pageturn/" + pagebase + ".ttl", "w")
@@ -890,7 +909,7 @@ if __name__ == "__main__":
     g = Graph() # create the grandmaster graph
 
 ############ START PARSING, i.e. filling templates and reading into graph #############
-    parseScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
+    #parsePageOfScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
     parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
     parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
     parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
@@ -907,7 +926,7 @@ if __name__ == "__main__":
     generateAnnotator(g, userinputrows, ringcycle, rdfbase)
     generatePerformance(g, userinputrows, ringcycle, rdfbase)
     generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
-    generateScore(g, userinputrows, ringcycle, rdfbase)
+    #generatePageOfScore(g, userinputrows, ringcycle, rdfbase)
     generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
     generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
     generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)

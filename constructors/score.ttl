@@ -11,12 +11,8 @@ prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>
 prefix prov: <http://www.w3.org/TR/prov-o/>
 
 CONSTRUCT {{
-    ?pageOfScore ?p ?o .
-    ?score dc:hasPart ?pageOfScore .
+			?score ?p ?o .
 }} WHERE {{
-    BIND({pageOfScore} as ?pageOfScore) .
-    ?pageOfScore ?p ?o .
-    ?score dc:hasPart ?pageOfScore .
+    BIND({score} AS ?score) .
+	?score ?p ?o . 
 }}
-
-
