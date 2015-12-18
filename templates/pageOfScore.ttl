@@ -1,0 +1,25 @@
+prefix ma: <http://www.w3.org/ns/ma-ont#> 
+prefix dc: <http://purl.org/dc/elements/1.1/> 
+prefix dct: <http://purl.org/dc/terms/> 
+prefix mo: <http://purl.org/ontology/mo/> 
+prefix event: <http://purl.org/NET/c4dm/event.owl#> 
+prefix foaf: <http://xmlns.com/foaf/0.1/> 
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix oa: <http://www.w3.org/ns/oa#> 
+prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> 
+prefix prov: <http://www.w3.org/TR/prov-o/>
+
+
+{pageOfScore} mo:mediatype dct:Image ;
+			  event:factorsIn {MusicalManifestationRealizationEvent} ;
+			  dc:PartOf {score} ;
+			  rdfs:comment "Each page of the score is a digital image of the score, without any type of annotation" .
+# there are many pages in one score
+#one page per [MusicalManifestationRealizationEvent] 
+# [MusicalManifestationRealizationEvent] is defined in performancepageturn.ttl
+									   				 
+# [performance] has its own file that includes [Agent6]
+# [performancePageTurns] is te file of performance-based pageturns (Richard)
+
+
