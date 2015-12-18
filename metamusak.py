@@ -909,7 +909,6 @@ if __name__ == "__main__":
     g = Graph() # create the grandmaster graph
 
 ############ START PARSING, i.e. filling templates and reading into graph #############
-    #parsePageOfScore(g, userinputrows, ringcycle, rdfbase) # score.ttl, performancePageturns.ttl
     parseAnnotatedScore(g, userinputrows, ringcycle, rdfbase) #annotatedScoreLayer1 & 2, freehandAnnotationLayer1
     parseAnnotator(g, userinputrows, ringcycle, rdfbase, offsets) # annotator.ttl
     parsePerformance(g, userinputrows, ringcycle, rdfbase, offsets) # performance.ttl
@@ -926,7 +925,6 @@ if __name__ == "__main__":
     generateAnnotator(g, userinputrows, ringcycle, rdfbase)
     generatePerformance(g, userinputrows, ringcycle, rdfbase)
     generatePerformanceAudio(g, userinputrows, ringcycle, rdfbase)
-    #generatePageOfScore(g, userinputrows, ringcycle, rdfbase)
     generateAnnotatedScore(g, userinputrows, ringcycle, rdfbase)
     generateAnnotatorVideo(g, userinputrows, ringcycle, rdfbase)
     generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
