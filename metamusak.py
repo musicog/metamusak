@@ -274,8 +274,8 @@ def parseAnnotatedScore(g, performances, filebase, rdfbase):
                         freehandAnnotationLayer1 = uri(perfuri + "/annotation/" + str(pagenum)),
                         Agent5 = uri(p["annotatorID"]),
                         performance = uri(perfuri),
-                        annotatedScoreLayer1 = uri(perfuri + "/annotation/score1/" + urllib.quote(basename)),
-                        annotatedScoreLayer2 = uri(perfuri + "/annotation/score2/" + urllib.quote(sc2basename)),
+                        pageOfAnnotatedScoreLayer1 = uri(perfuri + "/annotation/score1/" + urllib.quote(basename)),
+                        pageOfAnnotatedScoreLayer2 = uri(perfuri + "/annotation/score2/" + urllib.quote(sc2basename)),
                         annotatorVideo = uri(perfuri + "/annotator/annotator1.mov"), # FIXME address other videos
                         freehandAnnotationLayer1IntervalStart = lit(pageturns[pagenum]["starttime"]),
                         freehandAnnotationLayer1IntervalDuration = lit(pageturns[pagenum]["duration"]),
@@ -673,14 +673,14 @@ def generateScore(g, performances, filebase, rdfbase):
                 sc = sc.format(
                     score = uri(perfuri + "/musicalmanifestation/score/score")
                 )
-                sidecart = g.query(sc)
+                scoreSidecart = g.query(sc)
                 scoreSidecartFile.write(scoreSidecart.serialize(format="turtle"))
                 scoreConstruct.close()
                 scoreSidecartFile.close()
                 
                 pageOfScoreConstruct = open(filebase + "metamusak/constructors/pageOfScore.ttl", "r")
-                pageOfscoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/" + pagebase + ".ttl", "w")
-                psc = scoreConstruct.read()
+                pageOfScoreSidecartFile = open(filebase + "performance/" + perfid + "/musicalmanifestation/score/" + pagebase + ".ttl", "w")
+                psc = pageOfScoreConstruct.read()
                 psc = psc.format(
                     pageOfScore = uri(perfuri + "/musicalmanifestation/score/" + urllib.quote(pagebase))
                 )
@@ -845,6 +845,7 @@ if __name__ == "__main__":
 
     # Read in the user's input - currently from CSV files in the metamusak folder; in future, from a web interface
     userinputfile = csv.reader(open(ringcycle + "metamusak/user_input.csv", "rU"), delimiter = ",", quotechar = '"')
+    #userinputfile = csv.reader(open(ringcycle + "metamusak/user_input.csv", "rU"), delimiter = ",", quotechar = '"')
     userinputrows = list() # will contain all the content, i.e. all the dictionaries holding key:value pairs for each opera
     userinputfields = list() # will contain all the column headers
     for ix, line in enumerate(userinputfile):
@@ -918,6 +919,7 @@ if __name__ == "__main__":
     parseSubstituteAudio(g, userinputrows, ringcycle, rdfbase) # substituteAudio.ttl
     parseFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets) # substituteAudio.ttl
     parseSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
+    parseScore(g, userinputrows, ringcycle, rdfbase)
     #parseTimelines #timelines.ttl
 #    print "AFTER PARSING, GRAPH IS: ", g.serialize(format="turtle")
 
@@ -930,5 +932,6 @@ if __name__ == "__main__":
     generateAnnotatorAudio(g, userinputrows, ringcycle, rdfbase)
     generateFreehandAnnotationVideo(g, userinputrows, ringcycle, rdfbase, offsets)
     generateSourceAnnotatorVideo(g, userinputrows, ringcycle, rdfbase, offsets)
+    generateScore(g, userinputrows, ringcycle, rdfbase)
     #generateTimelines #timelines.ttl
 
