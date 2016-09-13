@@ -241,10 +241,8 @@ def parseAnnotatedScore(g, performances, filebase, rdfbase):
                 except: 
                     warn("Warning: don't have annotator page turn info for {0}".format(page))
                     continue
-                #TODO for musak 2.0: make page numbers and file names consistent between listener and annotator!!!
-                # so that the following nonsense isn't necessary:
                 pageOfScoreNum = pagenum + int(p["scorePageOffset"])
-                pageOfScore = p["operaPrefix"] + "-" + "{0:0>4}".format(pageOfScoreNum)
+                pageOfScore = p["operaPrefix"] + "_originalscore_page{0}".format(pageOfScoreNum)
                 annotatedScoreLayer1Template = open(filebase + "metamusak/templates/annotatedScoreLayer1.ttl", "r")
                 sc1 = annotatedScoreLayer1Template.read()
                 sc1 = sc1.format(
